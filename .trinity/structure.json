@@ -2,7 +2,24 @@
   "builds": [
     {
       "root": ".",
-      "discover": ["packages/*/package.json", "apps/*/package.json"]
+      "discover": [
+        "packages/*/package.json",
+        "apps/*/package.json"
+      ]
     }
-  ]
+  ],
+  "packages": {
+    "packages/sdk": {
+      "role": "package",
+      "targets": [
+        {
+          "type": "Library",
+          "label": "npm"
+        }
+      ],
+      "embeds": [
+        "packages/core"
+      ]
+    }
+  }
 }
