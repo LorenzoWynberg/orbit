@@ -38,4 +38,8 @@ Conversion, the unit set, aliases and the error types are implemented only in `p
 
 Each test file sits next to the source it tests as `<name>.test.ts`.
 
+## SDK package
+
+`packages/sdk` (`@orbit/sdk`) is re-exports only; tsup inlines `@orbit/core` into `dist`, so core is a devDependency, never a dependency. After `pnpm build`, `pnpm --filter @orbit/sdk pack:check` packs the tarball and imports it over ESM and CJS from a scratch install.
+
 Versions stay `0.0.0`; Trinity's release writes versions and publishes.
