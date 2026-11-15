@@ -4,6 +4,7 @@ import {
   UnknownUnitError,
 } from "./errors.js";
 import {
+  ALIAS_INDEX_FOLDED,
   TEMPERATURE_SCALES,
   UNIT_INDEX,
   UNITS,
@@ -11,8 +12,13 @@ import {
   type UnitInfo,
 } from "./units.js";
 
+/**
+ * Exact match on symbols and aliases first (so `mm`/`Mm` stay distinct), then
+ * a case-insensitive match on spelled-out aliases (4+ characters).
+ */
 function resolve(name: string): UnitInfo {
-  const unit = UNIT_INDEX.get(name);
+  const unit =
+    UNIT_INDEX.get(name) ?? ALIAS_INDEX_FOLDED.get(name.toLowerCase());
   if (!unit) throw new UnknownUnitError(name);
   return unit;
 }
