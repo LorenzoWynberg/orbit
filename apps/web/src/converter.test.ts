@@ -65,6 +65,18 @@ describe("temperature units", () => {
   });
 });
 
+describe("volume units", () => {
+  it("are not offered, and a URL naming them falls back inline", () => {
+    load("?from=gal&to=L");
+    expect(field<HTMLSelectElement>("from").value).toBe("km");
+    expect(field<HTMLSelectElement>("to").value).toBe("mi");
+    expect(message().textContent).toBe('Unknown unit "gal". Unknown unit "L"');
+    for (const id of ["from", "to"])
+      for (const o of field<HTMLSelectElement>(id).options)
+        expect(["L", "mL", "gal"]).not.toContain(o.value);
+  });
+});
+
 describe("live conversion", () => {
   it("converts as you type and as the units change, with no submit", () => {
     load();

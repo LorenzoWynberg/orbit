@@ -1,10 +1,10 @@
-export type Dimension = "length" | "mass" | "temperature";
+export type Dimension = "length" | "mass" | "temperature" | "volume";
 
 export interface UnitInfo {
   symbol: string;
   name: string;
   dimension: Dimension;
-  /** Exact factor to the base unit (metre for length, kilogram for mass). */
+  /** Exact factor to the base unit (metre for length, kilogram for mass, litre for volume). */
   factor: number;
   /**
    * Added to a value before it is scaled, so that `0` of the scale lines up
@@ -33,6 +33,9 @@ export const ALIASES: Readonly<Record<string, readonly string[]>> = {
   "°C": ["c", "celsius"],
   "°F": ["f", "fahrenheit"],
   K: ["k", "kelvin"],
+  L: ["l", "litre", "litres", "liter", "liters"],
+  mL: ["ml", "millilitre", "millilitres", "milliliter", "milliliters"],
+  gal: ["gallon", "gallons"],
 };
 
 type Row = [symbol: string, name: string, factor: number];
@@ -63,6 +66,12 @@ const MASS: Row[] = [
   ["oz", "ounce", 0.028349523125],
   ["lb", "pound", 0.45359237],
   ["st", "stone", 6.35029318],
+];
+
+const VOLUME: Row[] = [
+  ["L", "litre", 1],
+  ["mL", "millilitre", 0.001],
+  ["gal", "US gallon", 3.785411784],
 ];
 
 /**
@@ -117,6 +126,7 @@ export const UNITS: readonly UnitInfo[] = [
   ...build("length", LENGTH),
   ...build("mass", MASS),
   ...buildTemperature(TEMPERATURE),
+  ...build("volume", VOLUME),
 ];
 
 /** Exact-match lookup of symbols and aliases (a Map avoids prototype keys). */
