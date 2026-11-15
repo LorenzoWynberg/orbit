@@ -28,7 +28,7 @@ The package manifests and `pnpm-lock.yaml` are the record of the stack.
 
 ## Discovery rule
 
-Every workspace package lives at `packages/<name>/` or `apps/<name>/` with its own `package.json`, is discovered by the globs in `.trinity/structure.json`, and gets a declaration there when it is added.
+Every workspace package lives at `packages/<name>/` or `apps/<name>/` with its own `package.json`. Each package or folder declares itself in its own folder (a `trinity` object in its manifest or a `trinity.json`). `.trinity/structure.json` holds only the `builds` discovery globs and declares no package.
 
 ## Layering rule
 
