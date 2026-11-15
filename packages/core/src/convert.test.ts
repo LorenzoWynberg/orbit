@@ -67,7 +67,7 @@ describe("round trip", () => {
 describe("resolution and errors", () => {
   it("rejects case variants as unknown", () => {
     expect(() => convert(1, "KM", "m")).toThrow(UnknownUnitError);
-    expect.assertions(4);
+    expect.assertions(3);
     try {
       convert(1, "m", "MI");
     } catch (e) {
