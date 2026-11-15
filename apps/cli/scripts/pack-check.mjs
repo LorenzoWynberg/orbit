@@ -159,7 +159,10 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
   } catch (error) {
     fail(
       error instanceof Error
-        ? error.stderr?.toString() || error.message
+        ? [error.stdout, error.stderr]
+            .map((out) => out?.toString())
+            .filter(Boolean)
+            .join("\n") || error.message
         : String(error),
     );
   } finally {
