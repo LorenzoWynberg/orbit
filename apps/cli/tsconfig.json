@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "types": ["node"],
+    "paths": {
+      "@orbit/sdk": ["../../packages/sdk/src/index.ts"],
+      "@orbit/core": ["../../packages/core/src/index.ts"]
+    }
+  },
+  "include": [
+    "src",
+    "tsup.config.ts",
+    "../../packages/sdk/src",
+    "../../packages/core/src"
+  ],
+  "exclude": [
+    "../../packages/sdk/src/**/*.test.ts",
+    "../../packages/core/src/**/*.test.ts"
+  ]
+}
