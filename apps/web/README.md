@@ -19,3 +19,7 @@ pnpm --filter @orbit/web zip:extension
 ```
 
 This builds the extension and writes `apps/web/orbit-chrome-extension.zip` with `manifest.json` at the zip root.
+
+## Deployment
+
+The web converter deploys to GitHub Pages on every push to `main` through `.github/workflows/pages.yml`. The repository's Pages source (Settings → Pages) must be set to **GitHub Actions**.
