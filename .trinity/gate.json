@@ -1,0 +1,14 @@
+{
+  "domains": [],
+  "rules": [],
+  "spine": [
+    "package.json",
+    "tsconfig*.json",
+    "tsup.config.*"
+  ],
+  "commands": {
+    "scoped": "pnpm vitest run {folders}",
+    "full": "pnpm --filter @orbit/cli test",
+    "check": "pnpm --filter @orbit/cli exec tsc --noEmit && pnpm exec eslint apps/cli && pnpm exec prettier --check apps/cli"
+  }
+}
