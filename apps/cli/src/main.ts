@@ -1,5 +1,6 @@
 import { parseArgs, styleText } from "node:util";
 import {
+  BelowAbsoluteZeroError,
   convert,
   IncompatibleDimensionError,
   listUnits,
@@ -190,7 +191,8 @@ function run(argv: string[], io: Io): number {
   } catch (error) {
     if (
       error instanceof UnknownUnitError ||
-      error instanceof IncompatibleDimensionError
+      error instanceof IncompatibleDimensionError ||
+      error instanceof BelowAbsoluteZeroError
     ) {
       io.stderr.write(`${paint(io, "stderr", "red", error.message)}\n`);
       return 2;
