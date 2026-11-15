@@ -1,0 +1,11 @@
+{
+  "builds": [
+    {
+      "root": ".",
+      "discover": ["packages/*/package.json", "apps/*/package.json"],
+      "declarations": {
+        "packages/core": { "role": "core" }
+      }
+    }
+  ]
+}
