@@ -58,18 +58,24 @@ function splitArgs(argv: string[]): { rest: string[]; numbers: string[] } {
   const rest: string[] = [];
   const numbers: string[] = [];
   let afterTerminator = false;
+  let sawPositional = false;
   argv.forEach((token, i) => {
     const prev = argv[i - 1];
     const isOptionValue = prev === "--precision" || prev === "-p";
+    // Only a negative number in the leading value slot is lifted; anywhere
+    // else it stays put and parseArgs rejects it as an unknown option.
     if (
       !afterTerminator &&
       !isOptionValue &&
+      !sawPositional &&
       /^-(\d|\.\d)/.test(token) &&
       Number.isFinite(Number(token))
     ) {
       numbers.push(token);
+      sawPositional = true;
     } else {
       if (token === "--") afterTerminator = true;
+      else if (!isOptionValue && !token.startsWith("-")) sawPositional = true;
       rest.push(token);
     }
   });
@@ -173,6 +179,12 @@ function run(argv: string[], io: Io): number {
 
   try {
     const result = convert(value, from, to);
+    if (!Number.isFinite(result)) {
+      io.stderr.write(
+        `${paint(io, "stderr", "red", `Result of converting ${rawValue} ${from} to ${to} is too large to represent.`)}\n`,
+      );
+      return 2;
+    }
     io.stdout.write(`${String(Number(result.toPrecision(precision)))}\n`);
     return 0;
   } catch (error) {

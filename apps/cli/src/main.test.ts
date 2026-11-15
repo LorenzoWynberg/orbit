@@ -50,6 +50,15 @@ describe("conversion errors exit 2", () => {
   });
 });
 
+describe("overflow", () => {
+  it("exits 2 instead of printing Infinity", () => {
+    const r = run(["1e308", "km", "mm"]);
+    expect(r.code).toBe(2);
+    expect(r.out).toBe("");
+    expect(r.err).not.toBe("");
+  });
+});
+
 describe("usage errors exit 1", () => {
   it.each([
     [["5", "km"]],
@@ -59,6 +68,9 @@ describe("usage errors exit 1", () => {
     [["1", "km", "mi", "--precision", "1.5"]],
     [["--bogus"]],
     [["--list", "foo"]],
+    [["km", "-5", "mi"]],
+    [["km", "mi", "-5"]],
+    [["5", "-3", "km"]],
   ])("%j", (argv) => {
     const r = run(argv);
     expect(r.code).toBe(1);
