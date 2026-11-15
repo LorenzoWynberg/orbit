@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+### 0.2.0-rc.3
+
+#### Highlights
+
+##### Structured JSON output for the CLI
+
+`orbit` now takes a `--json` flag, so scripts can read conversion results without scraping text. Each conversion prints one compact object to stdout, such as `{"value":5,"from":"km","to":"mi","result":3.10686}`. `result` is rounded to `--precision`. A failure prints `{"error":"<message>"}` to stderr instead, and JSON output never uses colour.
+
+#### Unchanged
+
+Without `--json`, the CLI prints exactly what it did before: the bare number and a newline. Exit codes stay the same: `0` for success, `1` for usage errors and `2` for conversion errors. `--help` and `--list` still print plain text, so existing scripts need no changes.
+
+This release changes only the CLI package on npm. The SDK, the web converter on GitHub Pages and the Chrome extension have no changes.
+
 ### 0.2.0-rc.2
 
 #### Highlights: volume conversion
