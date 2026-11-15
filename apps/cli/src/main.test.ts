@@ -36,12 +36,27 @@ describe("conversion", () => {
     expect(run(["1e3", "m", "km"]).out).toBe("1\n");
     expect(run(["0.5", "km", "m"]).out).toBe("500\n");
   });
+  it("converts temperature units when named", () => {
+    for (const [argv, out] of [
+      [["100", "c", "f"], "212\n"],
+      [["-40", "c", "f"], "-40\n"],
+      [["0", "k", "c"], "-273.15\n"],
+      [["32", "fahrenheit", "celsius"], "0\n"],
+      [["-273.15", "c", "k"], "0\n"],
+    ] as const) {
+      expect(run([...argv])).toEqual({ code: 0, out, err: "" });
+    }
+  });
 });
 
 describe("conversion errors exit 2", () => {
   it.each([
     ["5", "km", "kg"],
     ["5", "KM", "mi"],
+    ["-300", "c", "k"],
+    ["-1", "k", "c"],
+    ["5", "c", "m"],
+    ["1", "kg", "f"],
   ])("%s %s %s", (...argv) => {
     const r = run(argv);
     expect(r.code).toBe(2);
@@ -85,12 +100,41 @@ describe("--list and --help", () => {
     expect(r.code).toBe(0);
     expect(r.out).toContain("length");
     expect(r.out).toContain("mass");
-    const split = r.out.indexOf("mass\n");
-    for (const u of listUnits()) {
-      const at = r.out.indexOf(`  ${u.symbol}  ${u.name}`);
-      expect(at).toBeGreaterThan(-1);
-      expect(u.dimension === "mass" ? at > split : at < split).toBe(true);
+    const heads = ["length", "mass", "temperature"].map((d) =>
+      r.out.indexOf(`${d}\n`),
+    );
+    expect(heads[0]).toBeGreaterThan(-1);
+    expect(heads[1]).toBeGreaterThan(heads[0]!);
+    expect(heads[2]).toBeGreaterThan(heads[1]!);
+    for (const [i, d] of (
+      ["length", "mass", "temperature"] as const
+    ).entries()) {
+      for (const u of listUnits(d)) {
+        const at = r.out.indexOf(`  ${u.symbol}  ${u.name}`);
+        expect(at).toBeGreaterThan(heads[i]!);
+        if (i < 2) expect(at).toBeLessThan(heads[i + 1]!);
+      }
     }
+  });
+  it("--list temperature lists only temperature units", () => {
+    const r = run(["--list", "temperature"]);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain("°C");
+    expect(r.out).toContain("°F");
+    expect(r.out).toContain("K");
+    for (const u of listUnits("temperature")) {
+      expect(r.out).toContain(`  ${u.symbol}  ${u.name}`);
+    }
+    for (const d of ["length", "mass"] as const) {
+      for (const u of listUnits(d)) {
+        expect(r.out).not.toContain(`  ${u.symbol}  ${u.name}`);
+      }
+    }
+  });
+  it("--list with an unknown dimension exits 1 naming temperature", () => {
+    const r = run(["--list", "bogus"]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain("length, mass or temperature");
   });
   it("--list mass omits length units", () => {
     const r = run(["--list", "mass"]);
@@ -105,6 +149,10 @@ describe("--list and --help", () => {
     expect(r.out).toContain("orbit <value> <from> <to>");
     expect(r.out).toContain("orbit 12 in cm --precision 3");
     expect(r.out).toContain("2  conversion error");
+    expect(r.out).toContain("temperature");
+    expect(r.out).toContain("--list [length|mass|temperature]");
+    expect(r.out).toContain("orbit 100 c f");
+    expect(r.out).toContain("below absolute zero");
   });
 });
 

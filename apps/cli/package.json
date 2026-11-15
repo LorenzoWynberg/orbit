@@ -1,7 +1,7 @@
 {
   "name": "@orbit/cli",
   "version": "0.1.1",
-  "description": "Convert length and mass units from the command line.",
+  "description": "Convert length, mass and temperature units from the command line.",
   "license": "MIT",
   "type": "module",
   "repository": {

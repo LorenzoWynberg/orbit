@@ -1,5 +1,6 @@
 import { parseArgs, styleText } from "node:util";
 import {
+  BelowAbsoluteZeroError,
   convert,
   IncompatibleDimensionError,
   listUnits,
@@ -19,14 +20,14 @@ export interface Io {
   env: Record<string, string | undefined>;
 }
 
-const DIMENSIONS: readonly Dimension[] = ["length", "mass"];
+const DIMENSIONS: readonly Dimension[] = ["length", "mass", "temperature"];
 const DEFAULT_PRECISION = 6;
 
-const USAGE = `orbit - convert length and mass units
+const USAGE = `orbit - convert length, mass and temperature units
 
 Usage:
   orbit <value> <from> <to> [--precision <n>]
-  orbit --list [length|mass]
+  orbit --list [length|mass|temperature]
   orbit --help
 
 Arguments:
@@ -42,12 +43,14 @@ Options:
 Examples:
   orbit 5 km mi
   orbit 12 in cm --precision 3
+  orbit 100 c f
+  orbit -40 c f
   orbit --list mass
 
 Exit codes:
   0  success
   1  usage error
-  2  conversion error (unknown unit or incompatible dimensions)
+  2  conversion error (unknown unit, incompatible dimensions, or a value below absolute zero)
 `;
 
 class UsageError extends Error {}
@@ -159,12 +162,12 @@ function run(argv: string[], io: Io): number {
       throw new UsageError("--list takes at most one dimension.");
     }
     const dim = positionals[0];
-    if (dim !== undefined && dim !== "length" && dim !== "mass") {
+    if (dim !== undefined && !DIMENSIONS.includes(dim as Dimension)) {
       throw new UsageError(
-        `Unknown dimension "${dim}": expected length or mass.`,
+        `Unknown dimension "${dim}": expected length, mass or temperature.`,
       );
     }
-    io.stdout.write(`${listing(io, dim)}\n`);
+    io.stdout.write(`${listing(io, dim as Dimension | undefined)}\n`);
     return 0;
   }
 
@@ -190,7 +193,8 @@ function run(argv: string[], io: Io): number {
   } catch (error) {
     if (
       error instanceof UnknownUnitError ||
-      error instanceof IncompatibleDimensionError
+      error instanceof IncompatibleDimensionError ||
+      error instanceof BelowAbsoluteZeroError
     ) {
       io.stderr.write(`${paint(io, "stderr", "red", error.message)}\n`);
       return 2;
