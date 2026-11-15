@@ -1,0 +1,21 @@
+{
+  "domains": [
+    {
+      "name": "web",
+      "rules": [
+        {
+          "paths": [
+            "src/**",
+            "package.json",
+            "tsconfig.json",
+            "tsup.config.ts",
+            "vite.config.ts",
+            "index.html",
+            "scripts/**",
+            "public/**"
+          ]
+        }
+      ]
+    }
+  ]
+}

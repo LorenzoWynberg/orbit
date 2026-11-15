@@ -1,0 +1,43 @@
+{
+  "name": "@orbit/cli",
+  "version": "0.0.0",
+  "description": "Convert length and mass units from the command line.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LorenzoWynberg/orbit.git",
+    "directory": "apps/cli"
+  },
+  "bin": {
+    "orbit": "dist/bin.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "registry": "http://localhost:4873",
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "pack:check": "node scripts/pack-check.mjs"
+  },
+  "dependencies": {
+    "@orbit/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^9.0.0"
+  },
+  "trinity": {
+    "role": "package",
+    "targets": [
+      {
+        "type": "CLI",
+        "label": "npm"
+      }
+    ]
+  }
+}
