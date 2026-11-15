@@ -270,4 +270,15 @@ describe("--json", () => {
     );
     expect(run(["--help"]).out).toContain("--json");
   });
+  it("only honours --json before the -- terminator", () => {
+    const after = run(["--", "5", "km", "mi", "--json"]);
+    expect(after.code).toBe(1);
+    expect(after.out).toBe("");
+    expect(() => JSON.parse(after.err)).toThrow();
+    const before = run(["--json", "--", "5", "km", "mi"]);
+    expect(before.code).toBe(0);
+    expect(before.out).toBe(
+      '{"value":5,"from":"km","to":"mi","result":3.10686}\n',
+    );
+  });
 });
