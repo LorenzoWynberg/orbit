@@ -189,6 +189,11 @@ output {
   }
 }
 
+html.extension body {
+  width: 360px;
+  min-height: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

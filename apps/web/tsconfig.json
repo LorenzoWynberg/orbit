@@ -2,9 +2,16 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
+    "allowJs": true,
+    "checkJs": false,
     "noEmit": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["vite/client"]
   },
-  "include": ["src", "vite.config.ts", "../../packages/core/src"]
+  "include": [
+    "src",
+    "vite.config.ts",
+    "scripts/zip-extension.mjs",
+    "../../packages/core/src"
+  ]
 }
