@@ -48,7 +48,7 @@ Examples:
 Exit codes:
   0  success
   1  usage error
-  2  conversion error (unknown unit or incompatible dimensions)
+  2  conversion error (unknown unit, incompatible dimensions, or below absolute zero)
 `;
 
 class UsageError extends Error {}

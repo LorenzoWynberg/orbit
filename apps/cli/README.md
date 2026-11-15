@@ -22,6 +22,6 @@ Negative values (`orbit -5 km m`) and exponents (`1e3`) are accepted. Colour is 
 
 - `0` success
 - `1` usage error
-- `2` conversion error (unknown unit or incompatible dimensions)
+- `2` conversion error (unknown unit, incompatible dimensions, or below absolute zero)
 
 Built on [`@orbit/sdk`](../../packages/sdk). MIT licensed.
