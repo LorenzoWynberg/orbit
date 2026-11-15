@@ -2,7 +2,7 @@
 
 ```
 orbit <value> <from> <to> [--precision <n>]
-orbit --list [length|mass]
+orbit --list [length|mass|temperature]
 orbit --help
 ```
 
@@ -11,6 +11,10 @@ $ orbit 5 km mi
 3.10686
 $ orbit 12 in cm --precision 3
 30.5
+$ orbit 100 c f
+212
 ```
+
+Temperature units (`c`, `f`, `k`) convert too; a value below absolute zero exits 2.
 
 Units are given by symbol, name or alias. Output is just the number, so it pipes cleanly. Exit codes: 0 success, 1 usage error, 2 conversion error. Set `NO_COLOR` to disable colour in `--list` and error messages.

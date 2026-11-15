@@ -1,6 +1,6 @@
 # @orbit/cli
 
-The `orbit` command: converts length and mass units from the terminal using `@orbit/sdk`. Published to npm as `@orbit/cli`; the binary is `dist/bin.js`.
+The `orbit` command: converts length, mass and temperature units from the terminal using `@orbit/sdk`. Published to npm as `@orbit/cli`; the binary is `dist/bin.js`.
 
 ## Rules for every change
 
