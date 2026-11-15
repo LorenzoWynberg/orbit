@@ -6,6 +6,7 @@ import {
   convert,
   listUnits,
 } from "./index.js";
+import { ALIASES, MIN_FOLDED_ALIAS_LENGTH, UNIT_INDEX } from "./units.js";
 
 function close(actual: number, expected: number, tol = 1e-12): void {
   const scale = Math.max(Math.abs(actual), Math.abs(expected));
@@ -226,10 +227,52 @@ describe("resolution and errors", () => {
   it("resolves aliases exactly", () => {
     expect(convert(1, "miles", "km")).toBe(convert(1, "mi", "km"));
     expect(convert(1, "um", "m")).toBe(convert(1, "µm", "m"));
-    expect(() => convert(1, "Miles", "km")).toThrow(UnknownUnitError);
+    expect(convert(1, "Miles", "km")).toBe(convert(1, "mi", "km"));
+    expect(() => convert(1, "MI", "km")).toThrow(UnknownUnitError);
   });
 
   it("passes NaN through", () => {
     expect(convert(NaN, "m", "km")).toBeNaN();
+  });
+});
+
+describe("case-insensitive alias resolution", () => {
+  const all = Object.values(ALIASES).flat();
+  const long = all.filter((a) => a.length >= MIN_FOLDED_ALIAS_LENGTH);
+  const short = all.filter((a) => a.length < MIN_FOLDED_ALIAS_LENGTH);
+  const cap = (a: string): string => a[0]!.toUpperCase() + a.slice(1);
+
+  it("resolves spelled-out names in any case", () => {
+    close(convert(1, "Gallons", "LITRES"), 3.785411784);
+    expect(convert(1, "Kilometer", "m")).toBe(1000);
+  });
+
+  it("folds every spelled-out alias to the same unit", () => {
+    for (const a of long) {
+      for (const v of [a.toUpperCase(), cap(a)])
+        expect(convert(1, v, a)).toBe(1);
+    }
+  });
+
+  it("keeps short aliases exact-case", () => {
+    for (const a of short) {
+      const up = a.toUpperCase();
+      if (UNIT_INDEX.has(up)) expect(() => convert(1, up, up)).not.toThrow();
+      else expect(() => convert(1, up, up)).toThrow(UnknownUnitError);
+    }
+    for (const bad of ["ML", "C", "F", "LBS", "MM", "MG", "KG", "CM"]) {
+      try {
+        convert(1, bad, "m");
+        expect.unreachable();
+      } catch (e) {
+        expect(e).toBeInstanceOf(UnknownUnitError);
+        expect((e as UnknownUnitError).unit).toBe(bad);
+      }
+    }
+  });
+
+  it("keeps case-distinct symbols distinct", () => {
+    close(convert(1, "Mm", "mm"), 1e9);
+    close(convert(1, "Mg", "mg"), 1e9);
   });
 });
