@@ -133,3 +133,33 @@ export const UNITS: readonly UnitInfo[] = [
 export const UNIT_INDEX: ReadonlyMap<string, UnitInfo> = new Map(
   UNITS.flatMap((u) => [u.symbol, ...u.aliases].map((k) => [k, u] as const)),
 );
+
+/**
+ * Aliases shorter than this are abbreviations (`ml`, `c`, `lbs`). They behave
+ * like symbols and match exactly, because case-distinct symbols exist
+ * (`mm`/`Mm`, `mg`/`Mg`). Only aliases at least this long are case-folded.
+ */
+export const MIN_FOLDED_ALIAS_LENGTH = 4;
+
+/**
+ * Case-insensitive lookup of spelled-out aliases, keyed lower-case. Symbols
+ * and short aliases are never in it, and an exact `UNIT_INDEX` match wins.
+ * Derived from `UNITS`, so it cannot drift from `ALIASES`.
+ */
+export const ALIAS_INDEX_FOLDED: ReadonlyMap<string, UnitInfo> = (() => {
+  const index = new Map<string, UnitInfo>();
+  for (const u of UNITS) {
+    for (const alias of u.aliases) {
+      if (alias.length < MIN_FOLDED_ALIAS_LENGTH) continue;
+      const key = alias.toLowerCase();
+      const existing = index.get(key);
+      if (existing && existing !== u) {
+        throw new Error(
+          `Alias collision: "${key}" maps to ${existing.symbol} and ${u.symbol}`,
+        );
+      }
+      index.set(key, u);
+    }
+  }
+  return index;
+})();
