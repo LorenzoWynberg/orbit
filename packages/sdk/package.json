@@ -1,6 +1,6 @@
 {
   "name": "@orbit/sdk",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Unit conversion (length and mass) for TypeScript and JavaScript.",
   "license": "MIT",
   "type": "module",

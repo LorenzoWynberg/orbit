@@ -1,6 +1,6 @@
 {
   "name": "@orbit/cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Convert length and mass units from the command line.",
   "license": "MIT",
   "type": "module",
