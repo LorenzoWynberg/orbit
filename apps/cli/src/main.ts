@@ -20,14 +20,19 @@ export interface Io {
   env: Record<string, string | undefined>;
 }
 
-const DIMENSIONS: readonly Dimension[] = ["length", "mass", "temperature"];
+const DIMENSIONS: readonly Dimension[] = [
+  "length",
+  "mass",
+  "temperature",
+  "volume",
+];
 const DEFAULT_PRECISION = 6;
 
-const USAGE = `orbit - convert length, mass and temperature units
+const USAGE = `orbit - convert length, mass, temperature and volume units
 
 Usage:
   orbit <value> <from> <to> [--precision <n>]
-  orbit --list [length|mass|temperature]
+  orbit --list [length|mass|temperature|volume]
   orbit --help
 
 Arguments:
@@ -45,6 +50,7 @@ Examples:
   orbit 12 in cm --precision 3
   orbit 100 c f
   orbit -40 c f
+  orbit 1 gal l --precision 10
   orbit --list mass
 
 Exit codes:
@@ -164,7 +170,7 @@ function run(argv: string[], io: Io): number {
     const dim = positionals[0];
     if (dim !== undefined && !DIMENSIONS.includes(dim as Dimension)) {
       throw new UsageError(
-        `Unknown dimension "${dim}": expected length, mass or temperature.`,
+        `Unknown dimension "${dim}": expected length, mass, temperature or volume.`,
       );
     }
     io.stdout.write(`${listing(io, dim as Dimension | undefined)}\n`);
