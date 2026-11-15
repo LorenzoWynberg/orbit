@@ -42,6 +42,17 @@ listUnits("volume").map((u) => u.symbol); // ["L", "mL", "gal"]
 convert(1, "gal", "L"); // 3.785411784 (aliases: "l", "litre", "ml", "gallon", …)
 ```
 
+## `listUnitSymbols(dimension)`
+
+Returns the symbols of the units in one dimension, in table order. Each call returns a new array.
+
+```ts
+import { listUnitSymbols } from "@orbit/sdk";
+
+listUnitSymbols("volume"); // ["L", "mL", "gal"]
+listUnitSymbols("temperature"); // ["°C", "°F", "K"]
+```
+
 ## Errors
 
 ### `UnknownUnitError`

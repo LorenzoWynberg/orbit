@@ -1,0 +1,36 @@
+{
+  "domains": [
+    "converter",
+    "extension"
+  ],
+  "rules": [
+    {
+      "glob": "apps/web/src/**",
+      "domain": "converter"
+    },
+    {
+      "glob": "apps/web/public/**",
+      "domain": "extension"
+    }
+  ],
+  "spine": [
+    "package.json",
+    "pnpm-workspace.yaml",
+    "pnpm-lock.yaml",
+    "tsconfig*.json",
+    "eslint.config.*",
+    "vitest.config.*",
+    "vitest.workspace.*",
+    "packages/core/**",
+    "apps/web/package.json",
+    "apps/web/tsconfig*.json",
+    "apps/web/vite.config.*",
+    "apps/web/index.html",
+    "apps/web/src/styles/**"
+  ],
+  "commands": {
+    "scoped": "pnpm vitest run {folders}",
+    "full": "pnpm -r test",
+    "check": "pnpm -r exec tsc --noEmit && pnpm exec eslint apps/web apps/cli packages/sdk packages/core && pnpm exec prettier --check apps/web apps/cli packages/sdk packages/core"
+  }
+}
