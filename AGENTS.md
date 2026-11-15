@@ -28,7 +28,7 @@ The package manifests and `pnpm-lock.yaml` are the record of the stack.
 
 ## Discovery rule
 
-Every workspace package lives at `packages/<name>/` or `apps/<name>/` with its own `package.json`, is discovered by the globs in `.trinity/structure.json`, and gets a declaration there when it is added.
+Every workspace package lives at `packages/<name>/` or `apps/<name>/` with its own `package.json`. Each package or folder declares itself in its own folder (a `trinity` object in its manifest or a `trinity.json`). `.trinity/structure.json` holds only the `builds` discovery globs and declares no package.
 
 ## Layering rule
 
@@ -37,5 +37,9 @@ Conversion, the unit set, aliases and the error types are implemented only in `p
 ## Tests beside subject
 
 Each test file sits next to the source it tests as `<name>.test.ts`.
+
+## SDK package
+
+`packages/sdk` (`@orbit/sdk`) is re-exports only; tsup inlines `@orbit/core` into `dist`, so core is a devDependency, never a dependency. After `pnpm build`, `pnpm --filter @orbit/sdk pack:check` packs the tarball and imports it over ESM and CJS from a scratch install.
 
 Versions stay `0.0.0`; Trinity's release writes versions and publishes.

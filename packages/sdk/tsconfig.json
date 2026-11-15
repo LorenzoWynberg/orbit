@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "noEmit": true,
+    "paths": { "@orbit/core": ["../core/src/index.ts"] }
+  },
+  "include": ["src", "tsup.config.ts", "../core/src"],
+  "exclude": ["../core/src/**/*.test.ts"]
+}
