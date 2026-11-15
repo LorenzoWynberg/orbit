@@ -53,7 +53,11 @@ describe("round trip", () => {
       const mag = 10 ** (-6 + Math.floor(rand() * 16));
       values.push(mag * (1 + rand()), -mag * (1 + rand()));
     }
-    for (const a of [...listUnits("length"), ...listUnits("mass")])
+    for (const a of [
+      ...listUnits("length"),
+      ...listUnits("mass"),
+      ...listUnits("volume"),
+    ])
       for (const b of listUnits(a.dimension))
         for (const v of values)
           close(convert(convert(v, a.symbol, b.symbol), b.symbol, a.symbol), v);
@@ -147,6 +151,47 @@ describe("temperature", () => {
   it("rejects temperature against another dimension", () => {
     expect(() => convert(1, "c", "m")).toThrow(IncompatibleDimensionError);
     expect(() => convert(1, "kg", "k")).toThrow(IncompatibleDimensionError);
+  });
+});
+
+describe("volume", () => {
+  it("converts exactly", () => {
+    expect(convert(1, "gal", "L")).toBe(3.785411784);
+    expect(convert(1, "L", "mL")).toBe(1000);
+    expect(convert(1, "gal", "mL")).toBe(3785.411784);
+  });
+
+  it("resolves every alias", () => {
+    for (const a of ["l", "litre", "litres", "liter", "liters"])
+      expect(convert(1, a, "L")).toBe(1);
+    for (const a of [
+      "ml",
+      "millilitre",
+      "millilitres",
+      "milliliter",
+      "milliliters",
+    ])
+      expect(convert(1, a, "mL")).toBe(1);
+    for (const a of ["gallon", "gallons"]) expect(convert(1, a, "gal")).toBe(1);
+  });
+
+  it("is case sensitive", () => {
+    expect(() => convert(1, "GAL", "L")).toThrow(UnknownUnitError);
+  });
+
+  it("rejects other dimensions", () => {
+    for (const [f, t] of [
+      ["gal", "kg"],
+      ["L", "m"],
+      ["mL", "°C"],
+    ] as const) {
+      expect(() => convert(1, f, t)).toThrow(IncompatibleDimensionError);
+    }
+    try {
+      convert(1, "gal", "kg");
+    } catch (e) {
+      expect((e as IncompatibleDimensionError).fromDimension).toBe("volume");
+    }
   });
 });
 

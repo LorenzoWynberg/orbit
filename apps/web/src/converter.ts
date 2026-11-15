@@ -9,7 +9,7 @@ import { formatResult } from "./format.js";
 
 const DEFAULTS = { value: "1", from: "km", to: "mi" } as const;
 const ERROR_ID = "converter-error";
-/** The dimensions this page offers; core's others (temperature) are not shown yet. */
+/** The dimensions this page offers; core's others (temperature, volume) are not shown yet. */
 const WEB_DIMENSIONS = ["length", "mass"] as const;
 
 function webUnits(): UnitInfo[] {
