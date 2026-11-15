@@ -1,5 +1,6 @@
 import { parseArgs, styleText } from "node:util";
 import {
+  BelowAbsoluteZeroError,
   convert,
   IncompatibleDimensionError,
   listUnits,
@@ -47,7 +48,7 @@ Examples:
 Exit codes:
   0  success
   1  usage error
-  2  conversion error (unknown unit or incompatible dimensions)
+  2  conversion error (unknown unit, incompatible dimensions, or below absolute zero)
 `;
 
 class UsageError extends Error {}
@@ -190,7 +191,8 @@ function run(argv: string[], io: Io): number {
   } catch (error) {
     if (
       error instanceof UnknownUnitError ||
-      error instanceof IncompatibleDimensionError
+      error instanceof IncompatibleDimensionError ||
+      error instanceof BelowAbsoluteZeroError
     ) {
       io.stderr.write(`${paint(io, "stderr", "red", error.message)}\n`);
       return 2;

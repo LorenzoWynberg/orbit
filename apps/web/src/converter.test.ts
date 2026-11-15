@@ -1,5 +1,4 @@
 // @vitest-environment happy-dom
-import { listUnits } from "@orbit/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import indexHtml from "../index.html?raw";
 import { mountConverter } from "./converter.js";
@@ -46,14 +45,24 @@ describe("units", () => {
       expect(groups.map((g) => g.label)).toEqual(["length", "mass"]);
       const options = groups.flatMap((g) => [...g.querySelectorAll("option")]);
       expect(options.map((o) => o.value)).toEqual(
-        listUnits().map((u) => u.symbol),
+        "nm µm mm cm m km Mm in ft yd mi nmi µg mg g kg Mg t gr oz lb st".split(
+          " ",
+        ),
       );
-      expect(field(id).querySelectorAll("option")).toHaveLength(
-        listUnits().length,
-      );
+      expect(field(id).querySelectorAll("option")).toHaveLength(22);
       expect(options[0]?.textContent).toBe("nm — nanometre");
     },
   );
+});
+
+describe("temperature units", () => {
+  it("are not offered, and a URL naming them falls back inline", () => {
+    load("?from=°C&to=K");
+    expect(field<HTMLSelectElement>("from").value).toBe("km");
+    expect(field<HTMLSelectElement>("to").value).toBe("mi");
+    expect(message().textContent).toBe('Unknown unit "°C". Unknown unit "K"');
+    expect(result()).toBe("");
+  });
 });
 
 describe("live conversion", () => {

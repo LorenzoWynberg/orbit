@@ -1,4 +1,4 @@
-export type Dimension = "length" | "mass";
+export type Dimension = "length" | "mass" | "temperature";
 
 export interface UnitInfo {
   symbol: string;
@@ -6,6 +6,11 @@ export interface UnitInfo {
   dimension: Dimension;
   /** Exact factor to the base unit (metre for length, kilogram for mass). */
   factor: number;
+  /**
+   * Added to a value before it is scaled, so that `0` of the scale lines up
+   * with the shared zero point of its dimension. Always 0 for length and mass.
+   */
+  offset: number;
   aliases: readonly string[];
 }
 
@@ -25,6 +30,9 @@ export const ALIASES: Readonly<Record<string, readonly string[]>> = {
   lb: ["pound", "pounds", "lbs"],
   st: ["stone"],
   gr: ["grain", "grains"],
+  "°C": ["c", "celsius"],
+  "°F": ["f", "fahrenheit"],
+  K: ["k", "kelvin"],
 };
 
 type Row = [symbol: string, name: string, factor: number];
@@ -57,12 +65,50 @@ const MASS: Row[] = [
   ["st", "stone", 6.35029318],
 ];
 
+/**
+ * Exact integer description of a temperature scale, kept out of `UnitInfo`:
+ * one degree is `num / den` of a kelvin, `offset` shifts the scale's zero onto
+ * the kelvin-degree axis' zero, and `absoluteZero` is the scale's own reading
+ * at 0 K. Conversion multiplies by integers before it divides, so the
+ * published cases (100 °C → 212 °F, 0 K → -273.15 °C) stay exact.
+ */
+export interface TemperatureScale {
+  num: number;
+  den: number;
+  offset: number;
+  absoluteZero: number;
+}
+
+type TemperatureRow = [symbol: string, name: string, scale: TemperatureScale];
+
+const TEMPERATURE: TemperatureRow[] = [
+  ["°C", "celsius", { num: 1, den: 1, offset: 0, absoluteZero: -273.15 }],
+  ["°F", "fahrenheit", { num: 5, den: 9, offset: -32, absoluteZero: -459.67 }],
+  ["K", "kelvin", { num: 1, den: 1, offset: -273.15, absoluteZero: 0 }],
+];
+
+/** Temperature scales by unit symbol. Internal: not part of the public API. */
+export const TEMPERATURE_SCALES: ReadonlyMap<string, TemperatureScale> =
+  new Map(TEMPERATURE.map(([symbol, , scale]) => [symbol, scale]));
+
 function build(dimension: Dimension, rows: Row[]): UnitInfo[] {
   return rows.map(([symbol, name, factor]) => ({
     symbol,
     name,
     dimension,
     factor,
+    offset: 0,
+    aliases: ALIASES[symbol] ?? [],
+  }));
+}
+
+function buildTemperature(rows: TemperatureRow[]): UnitInfo[] {
+  return rows.map(([symbol, name, { num, den, offset }]) => ({
+    symbol,
+    name,
+    dimension: "temperature",
+    factor: num / den,
+    offset,
     aliases: ALIASES[symbol] ?? [],
   }));
 }
@@ -70,6 +116,7 @@ function build(dimension: Dimension, rows: Row[]): UnitInfo[] {
 export const UNITS: readonly UnitInfo[] = [
   ...build("length", LENGTH),
   ...build("mass", MASS),
+  ...buildTemperature(TEMPERATURE),
 ];
 
 /** Exact-match lookup of symbols and aliases (a Map avoids prototype keys). */

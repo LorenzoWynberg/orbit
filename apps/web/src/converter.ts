@@ -3,11 +3,18 @@ import {
   IncompatibleDimensionError,
   listUnits,
   UnknownUnitError,
+  type UnitInfo,
 } from "@orbit/core";
 import { formatResult } from "./format.js";
 
 const DEFAULTS = { value: "1", from: "km", to: "mi" } as const;
 const ERROR_ID = "converter-error";
+/** The dimensions this page offers; core's others (temperature) are not shown yet. */
+const WEB_DIMENSIONS = ["length", "mass"] as const;
+
+function webUnits(): UnitInfo[] {
+  return WEB_DIMENSIONS.flatMap((dimension) => listUnits(dimension));
+}
 
 function required<T extends HTMLElement>(doc: Document, id: string): T {
   const el = doc.getElementById(id);
@@ -16,8 +23,8 @@ function required<T extends HTMLElement>(doc: Document, id: string): T {
 }
 
 function populate(doc: Document, select: HTMLSelectElement): void {
-  const units = listUnits();
-  for (const dimension of new Set(units.map((u) => u.dimension))) {
+  const units = webUnits();
+  for (const dimension of WEB_DIMENSIONS) {
     const group = doc.createElement("optgroup");
     group.label = dimension;
     for (const unit of units.filter((u) => u.dimension === dimension)) {
@@ -119,7 +126,7 @@ export function mountConverter(doc: Document): void {
   // Restore from the query. A unit that is not a symbol falls back to its
   // default and is reported inline until the next user event.
   const params = new URLSearchParams(doc.location.search);
-  const symbols = new Set(listUnits().map((u) => u.symbol));
+  const symbols = new Set(webUnits().map((u) => u.symbol));
   const rejected: [HTMLSelectElement, string][] = [];
   const restoreUnit = (
     select: HTMLSelectElement,

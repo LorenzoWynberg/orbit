@@ -32,3 +32,17 @@ export class IncompatibleDimensionError extends Error {
     this.toDimension = toDimension;
   }
 }
+
+export class BelowAbsoluteZeroError extends Error {
+  readonly value: number;
+  readonly unit: string;
+  readonly absoluteZero: number;
+
+  constructor(value: number, unit: string, absoluteZero: number) {
+    super(`${value} ${unit} is below absolute zero (${absoluteZero} ${unit})`);
+    this.name = "BelowAbsoluteZeroError";
+    this.value = value;
+    this.unit = unit;
+    this.absoluteZero = absoluteZero;
+  }
+}

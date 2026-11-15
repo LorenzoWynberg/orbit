@@ -36,12 +36,16 @@ describe("conversion", () => {
     expect(run(["1e3", "m", "km"]).out).toBe("1\n");
     expect(run(["0.5", "km", "m"]).out).toBe("500\n");
   });
+  it("converts temperature units when named", () => {
+    expect(run(["100", "c", "f"]).out).toBe("212\n");
+  });
 });
 
 describe("conversion errors exit 2", () => {
   it.each([
     ["5", "km", "kg"],
     ["5", "KM", "mi"],
+    ["-300", "c", "k"],
   ])("%s %s %s", (...argv) => {
     const r = run(argv);
     expect(r.code).toBe(2);
@@ -86,7 +90,10 @@ describe("--list and --help", () => {
     expect(r.out).toContain("length");
     expect(r.out).toContain("mass");
     const split = r.out.indexOf("mass\n");
-    for (const u of listUnits()) {
+    // The CLI lists length and mass only; temperature is not offered here.
+    expect(r.out).not.toContain("temperature");
+    expect(r.out).not.toContain("celsius");
+    for (const u of [...listUnits("length"), ...listUnits("mass")]) {
       const at = r.out.indexOf(`  ${u.symbol}  ${u.name}`);
       expect(at).toBeGreaterThan(-1);
       expect(u.dimension === "mass" ? at > split : at < split).toBe(true);
