@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.1 - 2026-11-15
+
+### Highlights
+
+This release makes the SDK and CLI packages ready to publish to npm.
+
+### Fixed
+
+The `@orbit/sdk` and CLI tarballs now include their compiled `dist/` output. An earlier attempt to publish `@orbit/sdk@0.1.0` failed because the tarball had no `dist/` folder: nothing built it during `pnpm pack`. Each package now builds its own `dist/` as part of packing, so a fresh clone produces a complete, installable tarball.
+
+### Improved
+
+The pre-publish tarball check now starts with no `dist/` folder on disk and fails if any entry point the manifest declares is missing from the tarball. Before, it passed only because an earlier build had left `dist/` in place. A package that would install without its code is now caught before it reaches the registry.
+
 ## 0.1.0 - 2026-11-15
 
 ### Highlights
