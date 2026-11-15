@@ -6,6 +6,7 @@ import {
   type UnitInfo,
 } from "@orbit/core";
 import { formatResult } from "./format.js";
+import { readUnits, writeUnits } from "./unit-memory.js";
 
 const DEFAULTS = { value: "1", from: "km", to: "mi" } as const;
 const ERROR_ID = "converter-error";
@@ -140,8 +141,20 @@ export function mountConverter(doc: Document): void {
       requested !== null && symbols.has(requested) ? requested : DEFAULTS[name];
   };
   valueInput.value = params.get("value") ?? DEFAULTS.value;
-  restoreUnit(fromSelect, "from");
-  restoreUnit(toSelect, "to");
+  if (params.has("from") || params.has("to")) {
+    restoreUnit(fromSelect, "from");
+    restoreUnit(toSelect, "to");
+  } else {
+    // No units in the link: reopen on the last pair, if it is still valid.
+    const dimensions = new Map(webUnits().map((u) => [u.symbol, u.dimension]));
+    const stored = readUnits(doc);
+    const usable =
+      stored !== null &&
+      dimensions.has(stored.from) &&
+      dimensions.get(stored.from) === dimensions.get(stored.to);
+    fromSelect.value = usable ? stored.from : DEFAULTS.from;
+    toSelect.value = usable ? stored.to : DEFAULTS.to;
+  }
 
   if (rejected.length > 0) {
     fail(
@@ -153,7 +166,12 @@ export function mountConverter(doc: Document): void {
   }
 
   form.addEventListener("input", update);
-  form.addEventListener("change", update);
+  form.addEventListener("change", (event) => {
+    update();
+    if (event.target === fromSelect || event.target === toSelect) {
+      writeUnits(doc, fromSelect.value, toSelect.value);
+    }
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
   });
@@ -162,5 +180,6 @@ export function mountConverter(doc: Document): void {
     fromSelect.value = toSelect.value;
     toSelect.value = from;
     update();
+    writeUnits(doc, fromSelect.value, toSelect.value);
   });
 }

@@ -1,6 +1,32 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.1 - 2026-11-15
+
+### Highlights
+
+#### Your last-used units are remembered
+
+The web converter and the Chrome extension popup now remember the last From/To unit pair you used and open on it next time. Before this release, both reset to km → mi every time they opened. That was most annoying in the extension popup, which had no way to keep your choice between openings.
+
+The pair is saved in your browser's local storage on your own device. A shared link that specifies units still takes precedence in the web converter. If storage is unavailable or the saved pair is no longer valid, both fall back to the km → mi default and work as before.
+
+**Affects:** GitHub Pages (web converter), Chrome Web Store (extension).
+
+### 0.1.1-rc.3
+
+#### Highlights
+
+##### Case-insensitive unit names everywhere
+
+Spelled-out unit names now match regardless of case in the SDK, the CLI, the web converter and the Chrome extension. Typing `Litre`, `GALLONS` or `Kilometer` used to fail with `UnknownUnitError`, and now it resolves to the right unit. The fix is in the shared unit tables, so every surface behaves the same way.
+
+##### Symbols stay exact-case on purpose
+
+Case-insensitive matching applies only to aliases of four or more characters. Symbols and short aliases like `ml`, `c` and `lbs` still need the exact case. This keeps apart units that differ only by capitalization, such as `mm`/`Mm` (millimetre/megametre) and `mg`/`Mg` (milligram/megagram).
+
+##### Compatibility
+
+Nothing breaks. Every input that resolved before resolves to the same unit now. The only change is that spelled-out names in a different case now work where they used to fail.
 
 ### 0.1.1-rc.2
 
