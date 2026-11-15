@@ -167,7 +167,7 @@ function run(argv: string[], io: Io): number {
         `Unknown dimension "${dim}": expected length, mass or temperature.`,
       );
     }
-    io.stdout.write(`${listing(io, dim)}\n`);
+    io.stdout.write(`${listing(io, dim as Dimension | undefined)}\n`);
     return 0;
   }
 
