@@ -21,6 +21,7 @@ if (!existsSync(join(dist, "manifest.json"))) {
 }
 
 const files = {};
+/** @param {string} dir */
 const walk = (dir) => {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = join(dir, entry.name);
