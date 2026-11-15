@@ -8,3 +8,5 @@
 - URL state: `value`, `from` and `to` query parameters are written with `history.replaceState` (the hash is kept) and restored on load. Defaults are `1`, `km`, `mi`.
 - Restore accepts canonical unit symbols only. An unknown unit falls back to its default and is reported inline until the next user event.
 - The swap button exchanges the two units.
+- Unit memory: `src/unit-memory.ts` keeps the last unit pair in `localStorage` under `orbit:web:units` as `{"from":"lb","to":"kg"}`. It is written on a `from`/`to` change and on swap, never on value input and never on load. No `chrome.storage` or manifest permission is used.
+- On load, a query that has `from` or `to` wins and storage is not read. Otherwise the stored pair is used only if both symbols are offered and share a dimension; anything else (missing, bad JSON, unknown or mixed units) falls back silently to `km`/`mi` with no inline error. Storage that throws on read or write is ignored.
