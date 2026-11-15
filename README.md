@@ -19,3 +19,7 @@ The web converter deploys to GitHub Pages on every push to `main` through `.gith
 ## License
 
 MIT
+
+## Deploy
+
+`@orbit/web` is published to GitHub Pages by `.github/workflows/pages.yml` on every push to `main`.
