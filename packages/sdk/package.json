@@ -1,6 +1,6 @@
 {
   "name": "@orbit/sdk",
-  "version": "0.2.0-rc.3",
+  "version": "0.2.0-rc.4",
   "description": "Unit conversion (length, mass and temperature) for TypeScript and JavaScript.",
   "license": "MIT",
   "type": "module",
