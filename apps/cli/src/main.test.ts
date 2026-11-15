@@ -140,7 +140,7 @@ describe("--list and --help", () => {
       }
     }
   });
-  it("--list with an unknown dimension exits 1 naming temperature", () => {
+  it("--list with an unknown dimension exits 1 naming all four dimensions", () => {
     const r = run(["--list", "bogus"]);
     expect(r.code).toBe(1);
     expect(r.err).toContain("length, mass, temperature or volume");
