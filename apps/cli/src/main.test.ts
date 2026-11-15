@@ -194,3 +194,80 @@ describe("colour", () => {
     expect(run(["--list"]).out).not.toMatch(ANSI);
   });
 });
+
+describe("--json", () => {
+  const lines = (s: string) => s.split("\n").filter(Boolean);
+  const parse = (s: string) => JSON.parse(s) as Record<string, unknown>;
+
+  it("prints a single JSON object on success", () => {
+    expect(run(["5", "km", "mi", "--json"])).toEqual({
+      code: 0,
+      out: '{"value":5,"from":"km","to":"mi","result":3.10686}\n',
+      err: "",
+    });
+    expect(run(["1e3", "m", "km", "--json"]).out).toBe(
+      '{"value":1000,"from":"m","to":"km","result":1}\n',
+    );
+    expect(run(["-40", "c", "f", "--json"]).out).toBe(
+      '{"value":-40,"from":"c","to":"f","result":-40}\n',
+    );
+    expect(run(["12", "in", "cm", "--precision", "3", "--json"]).out).toBe(
+      '{"value":12,"from":"in","to":"cm","result":30.5}\n',
+    );
+  });
+  it("accepts the flag anywhere, before a negative value too", () => {
+    expect(run(["--json", "5", "km", "mi"]).code).toBe(0);
+    expect(run(["--json", "-5", "km", "m"]).out).toContain('"result":-5000');
+  });
+  it("result matches the plain output", () => {
+    for (const argv of [
+      ["5", "km", "mi"],
+      ["1", "gal", "l"],
+      ["100", "c", "f"],
+    ]) {
+      const plain = run(argv).out;
+      const json = parse(run([...argv, "--json"]).out);
+      expect(json.result).toBe(Number(plain));
+    }
+  });
+  it.each([
+    ["5", "km", "kg"],
+    ["5", "foo", "mi"],
+    ["1e308", "km", "mm"],
+  ])("conversion error %s %s %s: exit 2, JSON on stderr", (...argv) => {
+    const r = run([...argv, "--json"]);
+    expect(r.code).toBe(2);
+    expect(r.out).toBe("");
+    expect(lines(r.err)).toHaveLength(1);
+    expect(typeof parse(r.err).error).toBe("string");
+  });
+  it.each([
+    [["5", "km", "--json"]],
+    [["1", "km", "mi", "--precision", "0", "--json"]],
+    [["--bogus", "--json"]],
+  ])("usage error %j: exit 1 with hint", (argv) => {
+    const r = run(argv);
+    expect(r.code).toBe(1);
+    expect(r.out).toBe("");
+    expect(lines(r.err)).toHaveLength(1);
+    expect(parse(r.err).error).toContain('Run "orbit --help" for usage.');
+  });
+  it("never emits ANSI in JSON mode", () => {
+    const tty = { isStdoutTTY: true, isStderrTTY: true, env: {} };
+    for (const argv of [
+      ["5", "km", "mi", "--json"],
+      ["5", "km", "kg", "--json"],
+      ["5", "km", "--json"],
+    ]) {
+      const r = run(argv, tty);
+      expect(r.out + r.err).not.toMatch(ANSI);
+    }
+  });
+  it("leaves --help and --list as plain text", () => {
+    expect(run(["--help", "--json"]).out).toBe(run(["--help"]).out);
+    expect(run(["--list", "mass", "--json"]).out).toBe(
+      run(["--list", "mass"]).out,
+    );
+    expect(run(["--help"]).out).toContain("--json");
+  });
+});
