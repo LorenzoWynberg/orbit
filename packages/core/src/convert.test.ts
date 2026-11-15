@@ -26,6 +26,13 @@ describe("golden conversions", () => {
     [1, "lb", "g", 453.59237],
     [1, "mm", "m", 0.001],
     [1, "Mm", "m", 1e6],
+    [1, "nm", "m", 1e-9],
+    [1, "µm", "m", 1e-6],
+    [1, "cm", "m", 0.01],
+    [1, "µg", "kg", 1e-9],
+    [1, "mg", "kg", 1e-6],
+    [1, "Mg", "kg", 1000],
+    [1, "t", "kg", 1000],
   ])("%d %s -> %s = %d", (v, from, to, expected) => {
     close(convert(v, from, to), expected);
   });
@@ -60,6 +67,7 @@ describe("round trip", () => {
 describe("resolution and errors", () => {
   it("rejects case variants as unknown", () => {
     expect(() => convert(1, "KM", "m")).toThrow(UnknownUnitError);
+    expect.assertions(4);
     try {
       convert(1, "m", "MI");
     } catch (e) {
