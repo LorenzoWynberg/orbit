@@ -1,6 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## 0.1.1 - 2026-11-15
+
+### Highlights
+
+#### Your last-used units are remembered
+
+The web converter and the Chrome extension popup now remember the last From/To unit pair you used and open on it next time. Before this release, both reset to km → mi every time they opened. That was most annoying in the extension popup, which had no way to keep your choice between openings.
+
+The pair is saved in your browser's local storage on your own device. A shared link that specifies units still takes precedence in the web converter. If storage is unavailable or the saved pair is no longer valid, both fall back to the km → mi default and work as before.
+
+**Affects:** GitHub Pages (web converter), Chrome Web Store (extension).
 
 ### 0.1.1-rc.3
 
