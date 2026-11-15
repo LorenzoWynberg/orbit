@@ -122,11 +122,19 @@ describe("--list and --help", () => {
     expect(r.out).toContain("°C");
     expect(r.out).toContain("°F");
     expect(r.out).toContain("K");
+    for (const u of listUnits("temperature")) {
+      expect(r.out).toContain(`  ${u.symbol}  ${u.name}`);
+    }
     for (const d of ["length", "mass"] as const) {
       for (const u of listUnits(d)) {
         expect(r.out).not.toContain(`  ${u.symbol}  ${u.name}`);
       }
     }
+  });
+  it("--list with an unknown dimension exits 1 naming temperature", () => {
+    const r = run(["--list", "bogus"]);
+    expect(r.code).toBe(1);
+    expect(r.err).toContain("length, mass or temperature");
   });
   it("--list mass omits length units", () => {
     const r = run(["--list", "mass"]);

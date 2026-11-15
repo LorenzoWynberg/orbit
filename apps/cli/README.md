@@ -5,7 +5,7 @@ Convert length, mass and temperature units from the command line.
 ```sh
 orbit 5 km mi                      # 3.10686
 orbit 12 in cm --precision 3       # 30.5
-orbit 100 c f                     # 212
+orbit 100 c f                      # 212
 orbit --list mass
 ```
 
