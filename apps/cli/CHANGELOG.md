@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+### 0.2.0-rc.4
+
+#### Highlights
+
+##### Orbit Unit Converter: a clearer name for the Chrome extension
+
+The Chrome extension used to appear as just "orbit". Its display name is now **Orbit Unit Converter**, so you can tell what it does from the Chrome toolbar and its Web Store listing.
+
+##### Both the page and the popup show the extension's name
+
+The converter page on GitHub Pages and the extension popup now each have a footer showing the extension's name. Both read it from the extension's manifest, so the website and the extension always show the same name.
+
+##### `listUnitSymbols(dimension)` in `@orbit/sdk`
+
+The SDK now exports `listUnitSymbols(dimension)`, which returns a dimension's unit symbols directly. It's useful for unit pickers, input checks and help text. `listUnits` hasn't changed, so the CLI and existing code keep working without any edits.
+
 ### 0.2.0-rc.3
 
 #### Highlights
