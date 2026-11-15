@@ -97,7 +97,9 @@ describe("package", () => {
   });
 
   it("builds for the GitHub Pages project path", () => {
-    expect(config.base).toBe("/orbit/");
+    const resolve = config as (env: { mode: string }) => { base: string };
+    expect(resolve({ mode: "production" }).base).toBe("/orbit/");
+    expect(resolve({ mode: "extension" }).base).toBe("./");
   });
 
   it("defines no unit tables or error classes of its own", () => {

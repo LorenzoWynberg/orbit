@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "orbit",
+  "description": "Convert length and mass units as you type.",
+  "version": "0.0.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "orbit unit converter"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
+}
