@@ -4,15 +4,46 @@ import { ALIASES } from "./units.js";
 
 const LENGTH = "nm µm mm cm m km Mm in ft yd mi nmi".split(" ");
 const MASS = "µg mg g kg Mg t gr oz lb st".split(" ");
+const TEMPERATURE = ["°C", "°F", "K"];
 
 describe("listUnits", () => {
-  it("lists length then mass in table order", () => {
-    expect(listUnits().map((u) => u.symbol)).toEqual([...LENGTH, ...MASS]);
+  it("lists length, mass then temperature in table order", () => {
+    expect(listUnits().map((u) => u.symbol)).toEqual([
+      ...LENGTH,
+      ...MASS,
+      ...TEMPERATURE,
+    ]);
   });
 
   it("filters by dimension", () => {
     expect(listUnits("mass").map((u) => u.symbol)).toEqual(MASS);
     expect(listUnits("length")).toHaveLength(12);
+    expect(listUnits("temperature").map((u) => u.symbol)).toEqual(TEMPERATURE);
+  });
+
+  it("gives length and mass a zero offset and temperature its own", () => {
+    for (const u of [...listUnits("length"), ...listUnits("mass")])
+      expect(u.offset).toBe(0);
+    const t = Object.fromEntries(
+      listUnits("temperature").map((u) => [u.symbol, u]),
+    );
+    expect(t["°C"]).toMatchObject({ name: "celsius", offset: 0, factor: 1 });
+    expect(t["°F"]).toMatchObject({ name: "fahrenheit", offset: -32 });
+    expect(t["K"]).toMatchObject({ name: "kelvin", offset: -273.15 });
+    expect(Object.keys(t["K"] ?? {}).sort()).toEqual([
+      "aliases",
+      "dimension",
+      "factor",
+      "name",
+      "offset",
+      "symbol",
+    ]);
+  });
+
+  it("resolves the temperature aliases", () => {
+    expect(ALIASES["°C"]).toEqual(["c", "celsius"]);
+    expect(ALIASES["°F"]).toEqual(["f", "fahrenheit"]);
+    expect(ALIASES["K"]).toEqual(["k", "kelvin"]);
   });
 
   it("holds exact defining factors", () => {

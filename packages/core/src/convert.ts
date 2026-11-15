@@ -1,5 +1,15 @@
-import { IncompatibleDimensionError, UnknownUnitError } from "./errors.js";
-import { UNIT_INDEX, UNITS, type Dimension, type UnitInfo } from "./units.js";
+import {
+  BelowAbsoluteZeroError,
+  IncompatibleDimensionError,
+  UnknownUnitError,
+} from "./errors.js";
+import {
+  TEMPERATURE_SCALES,
+  UNIT_INDEX,
+  UNITS,
+  type Dimension,
+  type UnitInfo,
+} from "./units.js";
 
 function resolve(name: string): UnitInfo {
   const unit = UNIT_INDEX.get(name);
@@ -16,6 +26,21 @@ export function convert(value: number, from: string, to: string): number {
       b.symbol,
       a.dimension,
       b.dimension,
+    );
+  }
+  const source = TEMPERATURE_SCALES.get(a.symbol);
+  const target = TEMPERATURE_SCALES.get(b.symbol);
+  if (source && target) {
+    if (value < source.absoluteZero) {
+      throw new BelowAbsoluteZeroError(value, a.symbol, source.absoluteZero);
+    }
+    if (a === b) return value;
+    // Multiply by integers before dividing, and never pivot through kelvin:
+    // either would turn 100 °C into 211.99999999999997 °F.
+    return (
+      ((value + source.offset) * (source.num * target.den)) /
+        (source.den * target.num) -
+      target.offset
     );
   }
   if (a === b) return value;

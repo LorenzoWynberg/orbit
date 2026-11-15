@@ -135,6 +135,14 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
   } else {
     console.log("  orbit 5 km mi -> 3.10686");
   }
+  const temp = orbit(scratch, ["100", "c", "f"]);
+  if (temp.status !== 0 || temp.stdout !== "212\n") {
+    fail(
+      `orbit 100 c f: exit ${temp.status}, stdout ${JSON.stringify(temp.stdout)}`,
+    );
+  } else {
+    console.log("  orbit 100 c f -> 212");
+  }
   const bad = orbit(scratch, ["5", "km", "kg"]);
   if (bad.status !== 2 || bad.stdout !== "" || bad.stderr === "") {
     fail(`orbit 5 km kg: expected exit 2 with stderr, got exit ${bad.status}`);

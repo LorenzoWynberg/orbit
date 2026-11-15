@@ -118,6 +118,7 @@ function checkConsumer(tgz, scratch) {
   );
   const body = `
 if (convert(1, "mi", "km") !== 1.609344) throw new Error("convert(1, mi, km) is wrong");
+if (convert(100, "c", "f") !== 212) throw new Error("convert(100, c, f) is wrong");
 let caught;
 try { convert(1, "xyz", "m"); } catch (error) { caught = error; }
 if (!(caught instanceof UnknownUnitError)) throw new Error("UnknownUnitError was not thrown");
@@ -132,7 +133,9 @@ if (!(caught instanceof UnknownUnitError)) throw new Error("UnknownUnitError was
   );
   for (const file of ["check.mjs", "check.cjs"]) {
     run(process.execPath, [file], scratch);
-    console.log(`  ${file}: convert(1, "mi", "km") === 1.609344`);
+    console.log(
+      `  ${file}: convert(1, "mi", "km") === 1.609344, convert(100, "c", "f") === 212`,
+    );
   }
 }
 
