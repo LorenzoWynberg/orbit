@@ -15,3 +15,4 @@ Unit conversion (length and mass) for TypeScript and JavaScript, published to np
 ## Guide
 
 - [Bundling and pack check](tech-guide/packaging/bundling.md)
+- [Listing unit symbols](tech-guide/api/unit-symbols.md)

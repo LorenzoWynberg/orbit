@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "orbit",
+  "name": "Orbit Unit Converter",
   "description": "Convert length and mass units as you type.",
   "version": "0.0.0",
   "action": {

@@ -16,5 +16,6 @@ The browser converter page of Orbit, built with Vite and shipped to GitHub Pages
 - [Design tokens](rules/design-tokens.md)
 - [Converter](tech-guide/converter/converter.md)
 - [Chrome extension build](tech-guide/converter/extension.md)
+- [Footer](tech-guide/converter/footer.md)
 - [Dev server port](tech-guide/converter/dev-server.md)
 - [Using the converter](user-guide/converter/using.md)

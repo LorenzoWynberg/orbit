@@ -9,9 +9,30 @@ describe("@orbit/sdk", () => {
       "IncompatibleDimensionError",
       "UnknownUnitError",
       "convert",
+      "listUnitSymbols",
       "listUnits",
     ]);
-    expect(Object.keys(sdk).sort()).toEqual(Object.keys(core).sort());
+    expect(Object.keys(sdk).sort()).toEqual(
+      [...Object.keys(core), "listUnitSymbols"].sort(),
+    );
+  });
+
+  it.each([
+    [
+      "length",
+      ["nm", "µm", "mm", "cm", "m", "km", "Mm", "in", "ft", "yd", "mi", "nmi"],
+    ],
+    ["mass", ["µg", "mg", "g", "kg", "Mg", "t", "gr", "oz", "lb", "st"]],
+    ["temperature", ["°C", "°F", "K"]],
+    ["volume", ["L", "mL", "gal"]],
+  ] as const)("listUnitSymbols(%s) lists its symbols", (dimension, symbols) => {
+    expect(sdk.listUnitSymbols(dimension)).toEqual(symbols);
+  });
+
+  it("listUnitSymbols returns a fresh array each call", () => {
+    const a = sdk.listUnitSymbols("volume");
+    a.push("x");
+    expect(sdk.listUnitSymbols("volume")).toEqual(["L", "mL", "gal"]);
   });
 
   it("re-exports the same bindings as core", () => {
