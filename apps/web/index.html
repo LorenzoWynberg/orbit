@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta
+      name="description"
+      content="Convert length and mass units as you type, with a link that reproduces the conversion."
+    />
+    <link rel="icon" href="data:," />
+    <title>orbit — unit converter</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#converter">Skip to converter</a>
+    <main>
+      <h1>orbit</h1>
+      <form id="converter" tabindex="-1" autocomplete="off" novalidate>
+        <div class="field field-value">
+          <label for="value">Value</label>
+          <input
+            id="value"
+            name="value"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+        <div class="field field-from">
+          <label for="from">From</label>
+          <select id="from" name="from"></select>
+        </div>
+        <button type="button" id="swap" aria-label="Swap units">
+          <span aria-hidden="true">⇄</span>
+        </button>
+        <div class="field field-to">
+          <label for="to">To</label>
+          <select id="to" name="to"></select>
+        </div>
+        <p id="converter-error" class="error" role="alert" hidden></p>
+        <div class="result">
+          <label for="result">Result</label>
+          <output
+            id="result"
+            name="result"
+            for="value from to"
+            aria-live="polite"
+          ></output>
+        </div>
+      </form>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

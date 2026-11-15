@@ -1,0 +1,30 @@
+{
+  "name": "@orbit/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@orbit/core": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  },
+  "trinity": {
+    "role": "package",
+    "targets": [
+      {
+        "type": "Web App",
+        "label": "GitHub Pages"
+      }
+    ],
+    "embeds": [
+      "packages/core"
+    ]
+  }
+}
