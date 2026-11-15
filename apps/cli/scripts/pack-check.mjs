@@ -1,6 +1,7 @@
 // Packs @orbit/sdk and @orbit/cli, checks the cli tarball's contents, installs
 // both into a scratch project outside the workspace and runs the `orbit` bin.
-// Run `pnpm build` first. Uses Node built-ins only.
+// Packing builds dist itself (prepack); both dists are deleted first. Uses
+// Node built-ins only.
 import { execFileSync, spawnSync } from "node:child_process";
 import {
   existsSync,
@@ -31,6 +32,27 @@ function listFiles(dir, prefix) {
   );
 }
 
+function collectManifestPaths(manifest) {
+  const paths = [];
+  for (const field of ["main", "module", "types"]) {
+    if (typeof manifest[field] === "string") paths.push(manifest[field]);
+  }
+  const walk = (value) => {
+    if (typeof value === "string") {
+      if (value.startsWith("./")) paths.push(value);
+    } else if (Array.isArray(value)) {
+      value.forEach(walk);
+    } else if (value && typeof value === "object") {
+      Object.values(value).forEach(walk);
+    }
+  };
+  walk(manifest.exports);
+  if (typeof manifest.bin === "string") paths.push(manifest.bin);
+  else if (manifest.bin && typeof manifest.bin === "object")
+    paths.push(...Object.values(manifest.bin));
+  return [...new Set(paths.map((p) => p.replace(/^\.\//, "")))];
+}
+
 function run(command, args, cwd) {
   return execFileSync(command, args, { cwd, encoding: "utf8" });
 }
@@ -46,22 +68,31 @@ function pack(dir, dest) {
 }
 
 function checkTarball(tgz, work) {
-  const expected = new Set([
-    "package.json",
-    "README.md",
-    "LICENSE",
-    ...listFiles(distDir, "dist/"),
-  ]);
   const actual = new Set(
     run("tar", ["-tzf", tgz], work)
       .split("\n")
       .filter((line) => line !== "" && !line.endsWith("/"))
       .map((line) => line.replace(/^package\//, "")),
   );
+  run("tar", ["-xzf", tgz, "-C", work, "package/package.json"], work);
+  const manifest = JSON.parse(
+    readFileSync(join(work, "package", "package.json"), "utf8"),
+  );
+  for (const path of collectManifestPaths(manifest)) {
+    if (!actual.has(path))
+      fail(`manifest names ${path} but the tarball lacks it`);
+  }
+  const expected = new Set([
+    "package.json",
+    "README.md",
+    "LICENSE",
+    ...(existsSync(distDir) ? listFiles(distDir, "dist/") : []),
+  ]);
   const unexpected = [...actual].filter((f) => !expected.has(f));
   const missing = [...expected].filter((f) => !actual.has(f));
   if (unexpected.length > 0) fail(`unexpected files: ${unexpected.join(", ")}`);
   if (missing.length > 0) fail(`missing files: ${missing.join(", ")}`);
+  return manifest;
 }
 
 function orbit(scratch, args) {
@@ -112,19 +143,15 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
   }
 }
 
-if (!existsSync(distDir) || !existsSync(join(sdkDir, "dist"))) {
-  fail("dist/ is missing; run `pnpm build` first");
-} else {
+{
+  rmSync(distDir, { recursive: true, force: true });
+  rmSync(join(sdkDir, "dist"), { recursive: true, force: true });
   const work = mkdtempSync(join(tmpdir(), "orbit-cli-pack-"));
   const scratch = mkdtempSync(join(tmpdir(), "orbit-cli-scratch-"));
   try {
     const sdkTgz = pack(sdkDir, work);
     const cliTgz = pack(pkgDir, work);
-    checkTarball(cliTgz, work);
-    run("tar", ["-xzf", cliTgz, "-C", work, "package/package.json"], work);
-    const manifest = JSON.parse(
-      readFileSync(join(work, "package", "package.json"), "utf8"),
-    );
+    const manifest = checkTarball(cliTgz, work);
     if (manifest.bin?.orbit !== "dist/bin.js")
       fail("bin.orbit is not dist/bin.js");
     checkConsumer(sdkTgz, cliTgz, scratch);
@@ -132,7 +159,10 @@ if (!existsSync(distDir) || !existsSync(join(sdkDir, "dist"))) {
   } catch (error) {
     fail(
       error instanceof Error
-        ? error.stderr?.toString() || error.message
+        ? [error.stdout, error.stderr]
+            .map((out) => out?.toString())
+            .filter(Boolean)
+            .join("\n") || error.message
         : String(error),
     );
   } finally {
