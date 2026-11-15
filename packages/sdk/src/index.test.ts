@@ -20,6 +20,15 @@ describe("@orbit/sdk", () => {
     }
   });
 
+  it("converts and lists volume units", () => {
+    expect(sdk.convert(1, "gal", "L")).toBe(3.785411784);
+    expect(sdk.listUnits("volume").map((u) => u.symbol)).toEqual([
+      "L",
+      "mL",
+      "gal",
+    ]);
+  });
+
   it("converts through the re-exported function", () => {
     expect(sdk.convert(1, "mi", "km")).toBe(1.609344);
   });

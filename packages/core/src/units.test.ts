@@ -5,13 +5,15 @@ import { ALIASES } from "./units.js";
 const LENGTH = "nm µm mm cm m km Mm in ft yd mi nmi".split(" ");
 const MASS = "µg mg g kg Mg t gr oz lb st".split(" ");
 const TEMPERATURE = ["°C", "°F", "K"];
+const VOLUME = ["L", "mL", "gal"];
 
 describe("listUnits", () => {
-  it("lists length, mass then temperature in table order", () => {
+  it("lists length, mass, temperature then volume in table order", () => {
     expect(listUnits().map((u) => u.symbol)).toEqual([
       ...LENGTH,
       ...MASS,
       ...TEMPERATURE,
+      ...VOLUME,
     ]);
   });
 
@@ -38,6 +40,32 @@ describe("listUnits", () => {
       "offset",
       "symbol",
     ]);
+  });
+
+  it("lists volume units with a zero offset", () => {
+    const v = listUnits("volume");
+    expect(v.map((u) => u.symbol)).toEqual(VOLUME);
+    for (const u of v) {
+      expect(u.dimension).toBe("volume");
+      expect(u.offset).toBe(0);
+    }
+    expect(v.map((u) => [u.name, u.factor])).toEqual([
+      ["litre", 1],
+      ["millilitre", 0.001],
+      ["US gallon", 3.785411784],
+    ]);
+  });
+
+  it("resolves the volume aliases", () => {
+    expect(ALIASES["L"]).toEqual(["l", "litre", "litres", "liter", "liters"]);
+    expect(ALIASES["mL"]).toEqual([
+      "ml",
+      "millilitre",
+      "millilitres",
+      "milliliter",
+      "milliliters",
+    ]);
+    expect(ALIASES["gal"]).toEqual(["gallon", "gallons"]);
   });
 
   it("resolves the temperature aliases", () => {
