@@ -2,6 +2,38 @@
 
 ## [Unreleased]
 
+### 0.2.0-rc.3
+
+#### Highlights
+
+##### Structured JSON output for the CLI
+
+`orbit` now takes a `--json` flag, so scripts can read conversion results without scraping text. Each conversion prints one compact object to stdout, such as `{"value":5,"from":"km","to":"mi","result":3.10686}`. `result` is rounded to `--precision`. A failure prints `{"error":"<message>"}` to stderr instead, and JSON output never uses colour.
+
+#### Unchanged
+
+Without `--json`, the CLI prints exactly what it did before: the bare number and a newline. Exit codes stay the same: `0` for success, `1` for usage errors and `2` for conversion errors. `--help` and `--list` still print plain text, so existing scripts need no changes.
+
+This release changes only the CLI package on npm. The SDK, the web converter on GitHub Pages and the Chrome extension have no changes.
+
+### 0.2.0-rc.2
+
+#### Highlights: volume conversion
+
+Orbit now converts volume. It supports **litre** (`L`), **millilitre** (`mL`) and **US gallon** (`gal`), with exact conversion factors: one US gallon is exactly 3.785411784 litres.
+
+##### SDK
+
+`@orbit/sdk` handles volume through the `convert` call you already use, with no change to the API. `convert(1, 'gal', 'L')` returns `3.785411784`.
+
+##### CLI
+
+The `orbit` CLI converts between the new units, for example `orbit 1 gal l --precision 10` prints `3.785411784`. The units appear in `--list` and `--help`. Default precision and output format are unchanged, so existing scripts keep working.
+
+##### Web converter and extension
+
+The web converter (GitHub Pages and the Chrome extension) is unchanged. Volume was kept out of it on purpose, so it still shows only length and mass.
+
 ### 0.2.0-rc.1
 
 #### Highlights
