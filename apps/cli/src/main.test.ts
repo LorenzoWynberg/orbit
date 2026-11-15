@@ -86,7 +86,8 @@ describe("--list and --help", () => {
     expect(r.out).toContain("length");
     expect(r.out).toContain("mass");
     const split = r.out.indexOf("mass\n");
-    for (const u of listUnits()) {
+    // The CLI lists length and mass only; temperature is not offered here.
+    for (const u of [...listUnits("length"), ...listUnits("mass")]) {
       const at = r.out.indexOf(`  ${u.symbol}  ${u.name}`);
       expect(at).toBeGreaterThan(-1);
       expect(u.dimension === "mass" ? at > split : at < split).toBe(true);
