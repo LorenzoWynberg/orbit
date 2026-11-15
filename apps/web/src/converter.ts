@@ -76,9 +76,12 @@ export function mountConverter(doc: Document): void {
       return;
     }
     try {
-      output.textContent = formatResult(
-        convert(n, fromSelect.value, toSelect.value),
-      );
+      const converted = convert(n, fromSelect.value, toSelect.value);
+      if (!Number.isFinite(converted)) {
+        fail("Result is too large to represent", [valueInput]);
+        return;
+      }
+      output.textContent = formatResult(converted);
     } catch (error) {
       if (error instanceof IncompatibleDimensionError) {
         fail(error.message, [fromSelect, toSelect]);

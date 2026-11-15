@@ -162,6 +162,15 @@ describe("errors", () => {
   });
 });
 
+describe("overflow", () => {
+  it("reports a result too large instead of showing Infinity", () => {
+    load("?value=1e308&from=km&to=m");
+    expect(message().textContent).toBe("Result is too large to represent");
+    expect(field("value").getAttribute("aria-invalid")).toBe("true");
+    expect(result()).toBe("");
+  });
+});
+
 describe("swap", () => {
   it("exchanges from and to and recomputes", () => {
     load("?value=5&from=km&to=mi");
