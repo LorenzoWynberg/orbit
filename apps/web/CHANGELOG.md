@@ -2,6 +2,24 @@
 
 ## [Unreleased]
 
+### 0.1.1-rc.2
+
+#### Highlights: volume conversion
+
+Orbit now converts volume. It supports **litre** (`L`), **millilitre** (`mL`) and **US gallon** (`gal`), with exact conversion factors: one US gallon is exactly 3.785411784 litres.
+
+##### SDK
+
+`@orbit/sdk` handles volume through the `convert` call you already use, with no change to the API. `convert(1, 'gal', 'L')` returns `3.785411784`.
+
+##### CLI
+
+The `orbit` CLI converts between the new units, for example `orbit 1 gal l --precision 10` prints `3.785411784`. The units appear in `--list` and `--help`. Default precision and output format are unchanged, so existing scripts keep working.
+
+##### Web converter and extension
+
+The web converter (GitHub Pages and the Chrome extension) is unchanged. Volume was kept out of it on purpose, so it still shows only length and mass.
+
 ### 0.1.1-rc.1
 
 #### Highlights
