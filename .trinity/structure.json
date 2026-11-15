@@ -7,19 +7,5 @@
         "apps/*/package.json"
       ]
     }
-  ],
-  "packages": {
-    "packages/sdk": {
-      "role": "package",
-      "targets": [
-        {
-          "type": "Library",
-          "label": "npm"
-        }
-      ],
-      "embeds": [
-        "packages/core"
-      ]
-    }
-  }
+  ]
 }

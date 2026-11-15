@@ -43,6 +43,15 @@
     "tsup": "^9.0.0"
   },
   "trinity": {
-    "role": "package"
+    "role": "package",
+    "targets": [
+      {
+        "type": "Library",
+        "label": "npm"
+      }
+    ],
+    "embeds": [
+      "packages/core"
+    ]
   }
 }
