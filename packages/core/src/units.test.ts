@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { listUnits } from "./index.js";
-import { ALIASES } from "./units.js";
+import {
+  ALIASES,
+  ALIAS_INDEX_FOLDED,
+  MIN_FOLDED_ALIAS_LENGTH,
+} from "./units.js";
 
 const LENGTH = "nm µm mm cm m km Mm in ft yd mi nmi".split(" ");
 const MASS = "µg mg g kg Mg t gr oz lb st".split(" ");
@@ -92,5 +96,14 @@ describe("listUnits", () => {
     const aliases = Object.values(ALIASES).flat();
     expect(aliases.filter((a) => symbols.has(a))).toEqual([]);
     expect(new Set(aliases).size).toBe(aliases.length);
+  });
+
+  it("folds only spelled-out aliases, none onto another unit's symbol", () => {
+    const symbols = new Set(listUnits().map((u) => u.symbol.toLowerCase()));
+    for (const [key, unit] of ALIAS_INDEX_FOLDED) {
+      expect(key.length).toBeGreaterThanOrEqual(MIN_FOLDED_ALIAS_LENGTH);
+      expect(unit.aliases.map((a) => a.toLowerCase())).toContain(key);
+      expect(symbols.has(key)).toBe(false);
+    }
   });
 });
