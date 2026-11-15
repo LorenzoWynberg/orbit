@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import indexHtml from "../index.html?raw";
 import { mountConverter } from "./converter.js";
 
@@ -32,8 +32,13 @@ function pick(id: "from" | "to", symbol: string): void {
 const result = (): string => field("result").textContent;
 const message = (): HTMLElement => field("converter-error");
 
+beforeEach(() => {
+  localStorage.clear();
+});
+
 afterEach(() => {
   vi.restoreAllMocks();
+  localStorage.clear();
 });
 
 describe("units", () => {
@@ -204,5 +209,115 @@ describe("swap", () => {
     expect(field<HTMLSelectElement>("to").value).toBe("km");
     expect(result()).toBe("8.04672");
     expect(location.search).toBe("?value=5&from=mi&to=km");
+  });
+});
+
+describe("unit memory", () => {
+  const KEY = "orbit:web:units";
+  const selected = (): string[] => [
+    field<HTMLSelectElement>("from").value,
+    field<HTMLSelectElement>("to").value,
+  ];
+
+  it("stores the pair when either unit changes", () => {
+    load();
+    pick("from", "lb");
+    pick("to", "kg");
+    expect(JSON.parse(localStorage.getItem(KEY) ?? "null")).toEqual({
+      from: "lb",
+      to: "kg",
+    });
+  });
+
+  it("stores the swapped pair", () => {
+    load();
+    document.querySelector<HTMLButtonElement>("#swap")?.click();
+    expect(JSON.parse(localStorage.getItem(KEY) ?? "null")).toEqual({
+      from: "mi",
+      to: "km",
+    });
+  });
+
+  it("reopens on a stored pair with no query and shows a result", () => {
+    localStorage.setItem(KEY, JSON.stringify({ from: "lb", to: "kg" }));
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+    load();
+    expect(selected()).toEqual(["lb", "kg"]);
+    expect(result()).toBe("0.453592");
+    expect(message().hidden).toBe(true);
+    expect(setItem).not.toHaveBeenCalled();
+  });
+
+  it("lets a query with units win over storage", () => {
+    localStorage.setItem(KEY, JSON.stringify({ from: "lb", to: "kg" }));
+    load("?to=m");
+    expect(selected()).toEqual(["km", "m"]);
+  });
+
+  it.each([
+    ["bad JSON", "{nope"],
+    ["a non-object", "7"],
+    ["a null", "null"],
+    ["a missing to", '{"from":"lb"}'],
+    ["a non-string from", '{"from":3,"to":"kg"}'],
+    ["a temperature", '{"from":"°C","to":"kg"}'],
+    ["an unknown from", '{"from":"xyz","to":"kg"}'],
+    ["an unknown to", '{"from":"lb","to":"xyz"}'],
+    ["mixed dimensions", '{"from":"km","to":"kg"}'],
+  ])("falls back silently on %s", (_name, stored) => {
+    localStorage.setItem(KEY, stored);
+    load();
+    expect(selected()).toEqual(["km", "mi"]);
+    expect(message().hidden).toBe(true);
+    expect(result()).toBe("0.621371");
+  });
+
+  it("falls back when nothing is stored", () => {
+    load();
+    expect(selected()).toEqual(["km", "mi"]);
+    expect(message().hidden).toBe(true);
+  });
+
+  it("survives getItem throwing", () => {
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    expect(() => load()).not.toThrow();
+    expect(selected()).toEqual(["km", "mi"]);
+    expect(message().hidden).toBe(true);
+  });
+
+  it("survives the localStorage getter throwing", () => {
+    const original = Object.getOwnPropertyDescriptor(window, "localStorage");
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get() {
+        throw new Error("denied");
+      },
+    });
+    try {
+      expect(() => load()).not.toThrow();
+      expect(selected()).toEqual(["km", "mi"]);
+      pick("to", "m");
+      expect(result()).toBe("1000");
+    } finally {
+      if (original) Object.defineProperty(window, "localStorage", original);
+      else Reflect.deleteProperty(window, "localStorage");
+    }
+  });
+
+  it("keeps converting when setItem throws", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("quota");
+    });
+    const logged = vi.spyOn(console, "error");
+    load("?value=5");
+    expect(() => pick("to", "m")).not.toThrow();
+    expect(result()).toBe("5000");
+    expect(location.search).toBe("?value=5&from=km&to=m");
+    document.querySelector<HTMLButtonElement>("#swap")?.click();
+    expect(result()).toBe("0.005");
+    expect(message().hidden).toBe(true);
+    expect(logged).not.toHaveBeenCalled();
   });
 });
