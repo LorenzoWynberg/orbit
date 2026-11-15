@@ -2,10 +2,7 @@
   "builds": [
     {
       "root": ".",
-      "discover": [
-        "packages/*/package.json",
-        "apps/*/package.json"
-      ]
+      "discover": ["packages/*/package.json", "apps/*/package.json"]
     }
   ]
 }
