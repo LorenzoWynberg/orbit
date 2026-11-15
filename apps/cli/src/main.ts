@@ -31,7 +31,7 @@ const DEFAULT_PRECISION = 6;
 const USAGE = `orbit - convert length, mass, temperature and volume units
 
 Usage:
-  orbit <value> <from> <to> [--precision <n>]
+  orbit <value> <from> <to> [--precision <n>] [--json]
   orbit --list [length|mass|temperature|volume]
   orbit --help
 
@@ -43,6 +43,7 @@ Arguments:
 Options:
   -p, --precision <n>  significant digits, 1 to 21 (default ${DEFAULT_PRECISION})
   -l, --list [dim]     list the units, optionally for one dimension
+  --json               print the result as JSON (errors as {"error":...} on stderr)
   -h, --help           show this help
 
 Examples:
@@ -121,6 +122,35 @@ function paint(
   return styleText(format, text, { validateStream: false });
 }
 
+function jsonMode(argv: string[]): boolean {
+  const end = argv.indexOf("--");
+  return (end === -1 ? argv : argv.slice(0, end)).includes("--json");
+}
+
+function writeError(
+  io: Io,
+  json: boolean,
+  message: string,
+  hint?: string,
+): void {
+  if (json) {
+    io.stderr.write(
+      `${JSON.stringify({ error: hint ? `${message} ${hint}` : message })}\n`,
+    );
+    return;
+  }
+  io.stderr.write(`${paint(io, "stderr", "red", message)}\n`);
+  if (hint) io.stderr.write(`${hint}\n`);
+}
+
+function isConversionError(error: unknown): error is Error {
+  return (
+    error instanceof UnknownUnitError ||
+    error instanceof IncompatibleDimensionError ||
+    error instanceof BelowAbsoluteZeroError
+  );
+}
+
 function listing(io: Io, dimension: Dimension | undefined): string {
   const dims = dimension ? [dimension] : DIMENSIONS;
   return dims
@@ -135,7 +165,7 @@ function listing(io: Io, dimension: Dimension | undefined): string {
     .join("\n\n");
 }
 
-function run(argv: string[], io: Io): number {
+function run(argv: string[], io: Io, json: boolean): number {
   const { rest, numbers } = splitArgs(argv);
   let parsed;
   try {
@@ -147,6 +177,7 @@ function run(argv: string[], io: Io): number {
         precision: { type: "string", short: "p" },
         list: { type: "boolean", short: "l" },
         help: { type: "boolean", short: "h" },
+        json: { type: "boolean" },
       },
     });
   } catch (error) {
@@ -189,20 +220,23 @@ function run(argv: string[], io: Io): number {
   try {
     const result = convert(value, from, to);
     if (!Number.isFinite(result)) {
-      io.stderr.write(
-        `${paint(io, "stderr", "red", `Result of converting ${rawValue} ${from} to ${to} is too large to represent.`)}\n`,
+      writeError(
+        io,
+        json,
+        `Result of converting ${rawValue} ${from} to ${to} is too large to represent.`,
       );
       return 2;
     }
-    io.stdout.write(`${String(Number(result.toPrecision(precision)))}\n`);
+    const rounded = Number(result.toPrecision(precision));
+    io.stdout.write(
+      json
+        ? `${JSON.stringify({ value, from, to, result: rounded })}\n`
+        : `${String(rounded)}\n`,
+    );
     return 0;
   } catch (error) {
-    if (
-      error instanceof UnknownUnitError ||
-      error instanceof IncompatibleDimensionError ||
-      error instanceof BelowAbsoluteZeroError
-    ) {
-      io.stderr.write(`${paint(io, "stderr", "red", error.message)}\n`);
+    if (isConversionError(error)) {
+      writeError(io, json, error.message);
       return 2;
     }
     throw error;
@@ -210,13 +244,12 @@ function run(argv: string[], io: Io): number {
 }
 
 export function main(argv: string[], io: Io): number {
+  const json = jsonMode(argv);
   try {
-    return run(argv, io);
+    return run(argv, io, json);
   } catch (error) {
     if (error instanceof UsageError) {
-      io.stderr.write(
-        `${paint(io, "stderr", "red", error.message)}\nRun "orbit --help" for usage.\n`,
-      );
+      writeError(io, json, error.message, 'Run "orbit --help" for usage.');
       return 1;
     }
     throw error;
