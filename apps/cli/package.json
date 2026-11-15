@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "prepack": "pnpm build",
     "typecheck": "tsc --noEmit",
     "pack:check": "node scripts/pack-check.mjs"
   },
