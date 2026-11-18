@@ -21,6 +21,13 @@ describe("speed", () => {
     expect(convert(7, "mph", "mph")).toBe(7);
   });
 
+  it("multiplies by integers before dividing (a factor-only path is off by one ulp)", () => {
+    expect(convert(1, "mph", "km/h")).toBe(1.609344);
+    expect(convert(2, "mph", "km/h")).toBe(3.218688);
+    expect(convert(-1, "mph", "km/h")).toBe(-1.609344);
+    expect(convert(0, "mph", "kn")).toBe(0);
+  });
+
   it.each([
     ["kmh", "km/h"],
     ["kph", "km/h"],
