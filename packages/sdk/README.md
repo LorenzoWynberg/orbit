@@ -1,6 +1,6 @@
 # @orbit/sdk
 
-Unit conversion for TypeScript and JavaScript. Length, mass, temperature and volume, exact factors, no dependencies. Ships ESM, CommonJS and bundled type declarations.
+Unit conversion for TypeScript and JavaScript. Length, mass, temperature, volume and speed, exact factors, no dependencies. Ships ESM, CommonJS and bundled type declarations.
 
 ## Install
 
@@ -30,7 +30,7 @@ const { convert } = require("@orbit/sdk");
 
 ## `listUnits(dimension?)`
 
-Returns every known unit as a `UnitInfo`, or only those of one dimension (`"length"`, `"mass"`, `"temperature"` or `"volume"`).
+Returns every known unit as a `UnitInfo`, or only those of one dimension (`"length"`, `"mass"`, `"temperature"`, `"volume"` or `"speed"`).
 
 ```ts
 import { listUnits } from "@orbit/sdk";
@@ -39,6 +39,7 @@ listUnits().length; // every unit
 listUnits("mass").map((u) => u.symbol); // ["µg", "mg", "g", "kg", "Mg", "t", "gr", "oz", "lb", "st"]
 listUnits("temperature").map((u) => u.symbol); // ["°C", "°F", "K"]
 listUnits("volume").map((u) => u.symbol); // ["L", "mL", "gal"]
+listUnits("speed").map((u) => u.symbol); // ["km/h", "mph", "m/s", "kn"]
 convert(1, "gal", "L"); // 3.785411784 (aliases: "l", "litre", "ml", "gallon", …)
 ```
 
@@ -51,6 +52,7 @@ import { listUnitSymbols } from "@orbit/sdk";
 
 listUnitSymbols("volume"); // ["L", "mL", "gal"]
 listUnitSymbols("temperature"); // ["°C", "°F", "K"]
+listUnitSymbols("speed"); // ["km/h", "mph", "m/s", "kn"]
 ```
 
 ## Errors
@@ -108,13 +110,13 @@ try {
 ```ts
 import type { Dimension, UnitInfo } from "@orbit/sdk";
 
-type Dimension = "length" | "mass" | "temperature" | "volume";
+type Dimension = "length" | "mass" | "temperature" | "volume" | "speed";
 
 interface UnitInfo {
   symbol: string;
   name: string;
   dimension: Dimension;
-  factor: number; // exact factor to the base unit (metre, kilogram or litre; one degree for temperature)
+  factor: number; // exact factor to the base unit (metre, kilogram or litre, metre per second for speed; one degree for temperature)
   offset: number; // added before scaling; 0 for length and mass
   aliases: readonly string[];
 }

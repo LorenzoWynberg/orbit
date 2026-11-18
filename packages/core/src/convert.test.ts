@@ -13,6 +13,34 @@ function close(actual: number, expected: number, tol = 1e-12): void {
   expect(Math.abs(actual - expected) <= tol * scale).toBe(true);
 }
 
+describe("speed", () => {
+  it("converts exactly", () => {
+    expect(convert(1, "kn", "km/h")).toBe(1.852);
+    expect(convert(3.6, "km/h", "m/s")).toBe(1);
+    expect(Number(convert(100, "km/h", "mph").toFixed(4))).toBe(62.1371);
+    expect(convert(7, "mph", "mph")).toBe(7);
+  });
+
+  it.each([
+    ["kmh", "km/h"],
+    ["kph", "km/h"],
+    ["mi/h", "mph"],
+    ["Mi/H", "mph"],
+    ["mps", "m/s"],
+    ["kt", "kn"],
+    ["knot", "kn"],
+    ["knots", "kn"],
+    ["KNOTS", "kn"],
+  ])("resolves alias %s to %s", (alias, symbol) => {
+    expect(convert(1, alias, symbol)).toBe(1);
+  });
+
+  it("rejects ms and other dimensions", () => {
+    expect(() => convert(1, "ms", "m/s")).toThrow(UnknownUnitError);
+    expect(() => convert(1, "km/h", "km")).toThrow(IncompatibleDimensionError);
+  });
+});
+
 describe("golden conversions", () => {
   it.each([
     [1, "in", "m", 0.0254],

@@ -109,19 +109,19 @@ describe("--list and --help", () => {
     expect(r.code).toBe(0);
     expect(r.out).toContain("length");
     expect(r.out).toContain("mass");
-    const heads = ["length", "mass", "temperature", "volume"].map((d) =>
-      r.out.indexOf(`${d}\n`),
+    const heads = ["length", "mass", "temperature", "volume", "speed"].map(
+      (d) => r.out.indexOf(`${d}\n`),
     );
     expect(heads[0]).toBeGreaterThan(-1);
     expect(heads[1]).toBeGreaterThan(heads[0]!);
     expect(heads[2]).toBeGreaterThan(heads[1]!);
     for (const [i, d] of (
-      ["length", "mass", "temperature", "volume"] as const
+      ["length", "mass", "temperature", "volume", "speed"] as const
     ).entries()) {
       for (const u of listUnits(d)) {
         const at = r.out.indexOf(`  ${u.symbol}  ${u.name}`);
         expect(at).toBeGreaterThan(heads[i]!);
-        if (i < 3) expect(at).toBeLessThan(heads[i + 1]!);
+        if (i < 4) expect(at).toBeLessThan(heads[i + 1]!);
       }
     }
   });
@@ -140,10 +140,10 @@ describe("--list and --help", () => {
       }
     }
   });
-  it("--list with an unknown dimension exits 1 naming all four dimensions", () => {
+  it("--list with an unknown dimension exits 1 naming every dimension", () => {
     const r = run(["--list", "bogus"]);
     expect(r.code).toBe(1);
-    expect(r.err).toContain("length, mass, temperature or volume");
+    expect(r.err).toContain("length, mass, temperature, volume or speed");
   });
   it("--list volume lists only volume units", () => {
     const r = run(["--list", "volume"]);
@@ -156,6 +156,22 @@ describe("--list and --help", () => {
         expect(r.out).not.toContain(`  ${u.symbol}  ${u.name}`);
       }
     }
+  });
+  it("converts speed units, plain and as JSON", () => {
+    const plain = run(["100", "kmh", "mph"]);
+    expect(plain.out).toBe("62.1371\n");
+    expect(plain.code).toBe(0);
+    expect(plain.err).toBe("");
+    expect(run(["100", "kmh", "mph", "--json"]).out).toBe(
+      '{"value":100,"from":"kmh","to":"mph","result":62.1371}\n',
+    );
+  });
+  it("--list speed lists the four speed units with aliases", () => {
+    const r = run(["--list", "speed"]);
+    expect(r.code).toBe(0);
+    expect(r.out).toContain("speed\n");
+    expect(r.out).toContain("  km/h  kilometre per hour  (kmh, kph)");
+    expect(r.out.trim().split("\n")).toHaveLength(5);
   });
   it("--list mass omits length units", () => {
     const r = run(["--list", "mass"]);
@@ -171,7 +187,12 @@ describe("--list and --help", () => {
     expect(r.out).toContain("orbit 12 in cm --precision 3");
     expect(r.out).toContain("2  conversion error");
     expect(r.out).toContain("temperature");
-    expect(r.out).toContain("--list [length|mass|temperature|volume]");
+    expect(r.out).toContain("--list [length|mass|temperature|volume|speed]");
+    expect(r.out).toContain("orbit 100 kmh mph");
+    expect(r.out).toContain("orbit --list speed");
+    expect(r.out).toContain(
+      "convert length, mass, temperature, volume and speed units",
+    );
     expect(r.out).toContain("orbit 1 gal l --precision 10");
     expect(r.out).toContain("orbit 100 c f");
     expect(r.out).toContain("below absolute zero");
