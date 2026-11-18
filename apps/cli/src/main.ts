@@ -25,14 +25,15 @@ const DIMENSIONS: readonly Dimension[] = [
   "mass",
   "temperature",
   "volume",
+  "speed",
 ];
 const DEFAULT_PRECISION = 6;
 
-const USAGE = `orbit - convert length, mass, temperature and volume units
+const USAGE = `orbit - convert length, mass, temperature, volume and speed units
 
 Usage:
   orbit <value> <from> <to> [--precision <n>] [--json]
-  orbit --list [length|mass|temperature|volume]
+  orbit --list [length|mass|temperature|volume|speed]
   orbit --help
 
 Arguments:
@@ -52,7 +53,9 @@ Examples:
   orbit 100 c f
   orbit -40 c f
   orbit 1 gal l --precision 10
+  orbit 100 kmh mph
   orbit --list mass
+  orbit --list speed
 
 Exit codes:
   0  success
@@ -201,7 +204,7 @@ function run(argv: string[], io: Io, json: boolean): number {
     const dim = positionals[0];
     if (dim !== undefined && !DIMENSIONS.includes(dim as Dimension)) {
       throw new UsageError(
-        `Unknown dimension "${dim}": expected length, mass, temperature or volume.`,
+        `Unknown dimension "${dim}": expected length, mass, temperature, volume or speed.`,
       );
     }
     io.stdout.write(`${listing(io, dim as Dimension | undefined)}\n`);

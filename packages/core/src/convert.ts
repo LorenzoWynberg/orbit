@@ -5,6 +5,7 @@ import {
 } from "./errors.js";
 import {
   ALIAS_INDEX_FOLDED,
+  SPEED_SCALES,
   TEMPERATURE_SCALES,
   UNIT_INDEX,
   UNITS,
@@ -48,6 +49,13 @@ export function convert(value: number, from: string, to: string): number {
         (source.den * target.num) -
       target.offset
     );
+  }
+  const from_ = SPEED_SCALES.get(a.symbol);
+  const to_ = SPEED_SCALES.get(b.symbol);
+  if (from_ && to_) {
+    if (a === b) return value;
+    // Integers first: 1 kn → km/h is exactly 1.852 only this way round.
+    return (value * (from_.num * to_.den)) / (from_.den * to_.num);
   }
   if (a === b) return value;
   return (value * a.factor) / b.factor;
