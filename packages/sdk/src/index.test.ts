@@ -25,8 +25,15 @@ describe("@orbit/sdk", () => {
     ["mass", ["µg", "mg", "g", "kg", "Mg", "t", "gr", "oz", "lb", "st"]],
     ["temperature", ["°C", "°F", "K"]],
     ["volume", ["L", "mL", "gal"]],
+    ["speed", ["km/h", "mph", "m/s", "kn"]],
   ] as const)("listUnitSymbols(%s) lists its symbols", (dimension, symbols) => {
     expect(sdk.listUnitSymbols(dimension)).toEqual(symbols);
+  });
+
+  it("converts speed exactly as core does", () => {
+    expect(sdk.convert(100, "km/h", "mph")).toBe(
+      core.convert(100, "km/h", "mph"),
+    );
   });
 
   it("listUnitSymbols returns a fresh array each call", () => {

@@ -10,6 +10,7 @@ const LENGTH = "nm µm mm cm m km Mm in ft yd mi nmi".split(" ");
 const MASS = "µg mg g kg Mg t gr oz lb st".split(" ");
 const TEMPERATURE = ["°C", "°F", "K"];
 const VOLUME = ["L", "mL", "gal"];
+const SPEED = ["km/h", "mph", "m/s", "kn"];
 
 describe("listUnits", () => {
   it("lists length, mass, temperature then volume in table order", () => {
@@ -18,7 +19,23 @@ describe("listUnits", () => {
       ...MASS,
       ...TEMPERATURE,
       ...VOLUME,
+      ...SPEED,
     ]);
+  });
+
+  it("lists speed units with exact factors and a zero offset", () => {
+    const s = listUnits("speed");
+    expect(s.map((u) => u.symbol)).toEqual(SPEED);
+    expect(s.map((u) => u.factor)).toEqual([5 / 18, 0.44704, 1, 463 / 900]);
+    for (const u of s) {
+      expect(u.dimension).toBe("speed");
+      expect(u.offset).toBe(0);
+    }
+  });
+
+  it("keeps SPEED_SCALES out of the public index", async () => {
+    const index = await import("./index.js");
+    expect(Object.keys(index)).not.toContain("SPEED_SCALES");
   });
 
   it("filters by dimension", () => {

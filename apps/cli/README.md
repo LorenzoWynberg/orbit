@@ -1,6 +1,6 @@
 # @orbit/cli
 
-Convert length, mass, temperature and volume units from the command line.
+Convert length, mass, temperature, volume and speed units from the command line.
 
 ```sh
 orbit 5 km mi                      # 3.10686
@@ -15,7 +15,7 @@ orbit --list mass
 `orbit <value> <from> <to> [--precision <n>] [--json]`
 
 - `-p, --precision <n>`: significant digits, 1 to 21 (default 6).
-- `-l, --list [length|mass|temperature|volume]`: list units, optionally for one dimension.
+- `-l, --list [length|mass|temperature|volume|speed]`: list units, optionally for one dimension.
 - `--json`: print the result as one JSON line (see below).
 - `-h, --help`: show help.
 
