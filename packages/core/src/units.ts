@@ -1,10 +1,10 @@
-export type Dimension = "length" | "mass" | "temperature" | "volume";
+export type Dimension = "length" | "mass" | "temperature" | "volume" | "speed";
 
 export interface UnitInfo {
   symbol: string;
   name: string;
   dimension: Dimension;
-  /** Exact factor to the base unit (metre for length, kilogram for mass, litre for volume). */
+  /** Exact factor to the base unit (metre for length, kilogram for mass, litre for volume, metre per second for speed). */
   factor: number;
   /**
    * Added to a value before it is scaled, so that `0` of the scale lines up
@@ -36,6 +36,10 @@ export const ALIASES: Readonly<Record<string, readonly string[]>> = {
   L: ["l", "litre", "litres", "liter", "liters"],
   mL: ["ml", "millilitre", "millilitres", "milliliter", "milliliters"],
   gal: ["gallon", "gallons"],
+  "km/h": ["kmh", "kph"],
+  mph: ["mi/h"],
+  "m/s": ["mps"],
+  kn: ["kt", "knot", "knots"],
 };
 
 type Row = [symbol: string, name: string, factor: number];
@@ -100,6 +104,31 @@ const TEMPERATURE: TemperatureRow[] = [
 export const TEMPERATURE_SCALES: ReadonlyMap<string, TemperatureScale> =
   new Map(TEMPERATURE.map(([symbol, , scale]) => [symbol, scale]));
 
+/**
+ * Exact rational description of a speed unit, kept out of `UnitInfo`: one unit
+ * is `num / den` metres per second. Conversion multiplies by integers before
+ * it divides, so 1 kn → km/h is exactly 1.852. Internal: not part of the
+ * public API.
+ */
+export interface SpeedScale {
+  num: number;
+  den: number;
+}
+
+type SpeedRow = [symbol: string, name: string, scale: SpeedScale];
+
+const SPEED: SpeedRow[] = [
+  ["km/h", "kilometre per hour", { num: 5, den: 18 }],
+  ["mph", "mile per hour", { num: 1397, den: 3125 }],
+  ["m/s", "metre per second", { num: 1, den: 1 }],
+  ["kn", "knot", { num: 463, den: 900 }],
+];
+
+/** Speed scales by unit symbol. Internal: not part of the public API. */
+export const SPEED_SCALES: ReadonlyMap<string, SpeedScale> = new Map(
+  SPEED.map(([symbol, , scale]) => [symbol, scale]),
+);
+
 function build(dimension: Dimension, rows: Row[]): UnitInfo[] {
   return rows.map(([symbol, name, factor]) => ({
     symbol,
@@ -122,11 +151,23 @@ function buildTemperature(rows: TemperatureRow[]): UnitInfo[] {
   }));
 }
 
+function buildSpeed(rows: SpeedRow[]): UnitInfo[] {
+  return rows.map(([symbol, name, { num, den }]) => ({
+    symbol,
+    name,
+    dimension: "speed",
+    factor: num / den,
+    offset: 0,
+    aliases: ALIASES[symbol] ?? [],
+  }));
+}
+
 export const UNITS: readonly UnitInfo[] = [
   ...build("length", LENGTH),
   ...build("mass", MASS),
   ...buildTemperature(TEMPERATURE),
   ...build("volume", VOLUME),
+  ...buildSpeed(SPEED),
 ];
 
 /** Exact-match lookup of symbols and aliases (a Map avoids prototype keys). */
