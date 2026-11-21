@@ -103,7 +103,7 @@ function orbit(scratch, args) {
   return r;
 }
 
-function checkConsumer(sdkTgz, cliTgz, scratch) {
+function checkConsumer(sdkTgz, cliTgz, scratch, manifest) {
   // pnpm rewrites the cli's workspace:* to 0.0.0; the override keeps npm from
   // reaching a registry for it.
   writeFileSync(
@@ -143,6 +143,14 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
   } else {
     console.log("  orbit 100 c f -> 212");
   }
+  const ver = orbit(scratch, ["--version"]);
+  if (ver.status !== 0 || ver.stdout !== `${manifest.version}\n`) {
+    fail(
+      `orbit --version: exit ${ver.status}, stdout ${JSON.stringify(ver.stdout)}`,
+    );
+  } else {
+    console.log(`  orbit --version -> ${manifest.version}`);
+  }
   const bad = orbit(scratch, ["5", "km", "kg"]);
   if (bad.status !== 2 || bad.stdout !== "" || bad.stderr === "") {
     fail(`orbit 5 km kg: expected exit 2 with stderr, got exit ${bad.status}`);
@@ -162,7 +170,7 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
     const manifest = checkTarball(cliTgz, work);
     if (manifest.bin?.orbit !== "dist/bin.js")
       fail("bin.orbit is not dist/bin.js");
-    checkConsumer(sdkTgz, cliTgz, scratch);
+    checkConsumer(sdkTgz, cliTgz, scratch, manifest);
     if (process.exitCode !== 1) console.log("pack:check passed");
   } catch (error) {
     fail(
