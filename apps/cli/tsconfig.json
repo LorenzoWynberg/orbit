@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
+    "resolveJsonModule": true,
     "noEmit": true,
     "types": ["node"],
     "paths": {
@@ -11,6 +12,7 @@
   },
   "include": [
     "src",
+    "package.json",
     "tsup.config.ts",
     "../../packages/sdk/src",
     "../../packages/core/src"

@@ -17,6 +17,7 @@ orbit --list mass
 - `-p, --precision <n>`: significant digits, 1 to 21 (default 6).
 - `-l, --list [length|mass|temperature|volume|speed]`: list units, optionally for one dimension.
 - `--json`: print the result as one JSON line (see below).
+- `-v, --version`: print the CLI version (`--version --json` prints `{"version":"..."}`).
 - `-h, --help`: show help.
 
 Volume units are `L`, `mL` and `gal`.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { listUnits } from "@orbit/sdk";
 import { main, type Io } from "./main.js";
+import pkg from "../package.json" with { type: "json" };
 
 const ANSI = new RegExp(`${String.fromCharCode(27)}\\[`);
 
@@ -303,5 +304,42 @@ describe("--json", () => {
     expect(before.out).toBe(
       '{"value":5,"from":"km","to":"mi","result":3.10686}\n',
     );
+  });
+});
+
+describe("--version", () => {
+  it.each([["--version"], ["-v"]])("%s prints the version", (flag) => {
+    expect(run([flag])).toEqual({
+      code: 0,
+      out: `${pkg.version}\n`,
+      err: "",
+    });
+  });
+
+  it("prints {version} as one JSON line with --json", () => {
+    const r = run(["--version", "--json"]);
+    expect(r.code).toBe(0);
+    expect(r.out.endsWith("\n")).toBe(true);
+    expect(JSON.parse(r.out)).toEqual({ version: pkg.version });
+  });
+
+  it.each([
+    [["--version", "--help"]],
+    [["--version", "--list"]],
+    [["5", "km", "mi", "--version"]],
+  ])("beats other modes: %j", (argv) => {
+    const r = run(argv);
+    expect(r.code).toBe(0);
+    expect(r.out).toBe(`${pkg.version}\n`);
+  });
+
+  it("is plain text on a TTY", () => {
+    expect(run(["--version"], { isStdoutTTY: true }).out).not.toMatch(ANSI);
+  });
+
+  it("is documented in --help", () => {
+    const out = run(["--help"]).out;
+    expect(out).toContain("-v, --version");
+    expect(out).toContain("orbit --version");
   });
 });
