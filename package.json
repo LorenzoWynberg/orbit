@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format:check": "prettier --check .",
     "format": "prettier --write .",
-    "build": "pnpm -r --if-present build"
+    "build": "pnpm -r --if-present build",
+    "check:pack": "pnpm --filter @orbit/sdk pack:check && pnpm --filter @orbit/cli pack:check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

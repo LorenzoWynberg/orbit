@@ -2,6 +2,32 @@
 
 ## [Unreleased]
 
+### 0.2.0-rc.5
+
+#### Highlights: speed conversion
+
+Orbit adds a fifth dimension, speed, alongside length, mass, temperature and volume. It supports kilometres per hour (`km/h`), miles per hour (`mph`), metres per second (`m/s`) and knots (`kn`).
+
+##### Exact results
+
+The core library computes speed conversions exactly, so you get precise answers before any rounding. `1 kn` gives exactly `1.852` km/h, `1 mph` gives exactly `1.609344` km/h, and `3.6 km/h` gives exactly `1` m/s. `100 km/h` gives `62.1371` mph at the default precision.
+
+##### Aliases
+
+Unit names accept common spellings, in any letter case: `kmh`/`kph`, `mi/h`, `mps`, and `kt`/`knot`/`knots`. `ms` is not accepted, so it can't be mistaken for milliseconds. Converting a speed to a unit of another dimension throws `IncompatibleDimensionError`.
+
+##### SDK
+
+In `@orbit/sdk`, `Dimension` now includes `"speed"`. `listUnits("speed")` and `listUnitSymbols("speed")` return `["km/h", "mph", "m/s", "kn"]`, and `listUnits()` lists the speed units after volume. If your TypeScript code switches exhaustively over `Dimension`, it now needs a `"speed"` case.
+
+##### CLI
+
+In `@orbit/cli`, `orbit 100 kmh mph` prints `62.1371`, and `--json` works for speed too. `orbit --list speed` lists the speed units with their aliases. If you pass an unknown dimension to `--list`, the error names all five dimensions. The help text and README include the new examples.
+
+##### Web app and extension
+
+The web app on GitHub Pages and the Chrome extension both use the same conversion engine, which now handles speed.
+
 ### 0.2.0-rc.4
 
 #### Highlights

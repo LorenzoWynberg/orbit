@@ -14,4 +14,5 @@ The `orbit` command: converts length, mass, temperature and volume units from th
 
 - [Output and exit codes](rules/output-contract.md)
 - [Argument handling](tech-guide/cli/arguments.md)
+- [Pack check and check:pack](tech-guide/cli/pack-check.md)
 - [Using orbit](user-guide/usage/commands.md)
