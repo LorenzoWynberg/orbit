@@ -92,6 +92,22 @@ function checkTarball(tgz, work) {
   const missing = [...expected].filter((f) => !actual.has(f));
   if (unexpected.length > 0) fail(`unexpected files: ${unexpected.join(", ")}`);
   if (missing.length > 0) fail(`missing files: ${missing.join(", ")}`);
+  const leaked = [...actual].filter(
+    (f) =>
+      f.startsWith("src/") || f.startsWith("scripts/") || /\.test\./.test(f),
+  );
+  if (leaked.length > 0)
+    fail(`source or test files packed: ${leaked.join(", ")}`);
+  for (const field of [
+    "dependencies",
+    "peerDependencies",
+    "optionalDependencies",
+  ]) {
+    for (const [name, range] of Object.entries(manifest[field] ?? {})) {
+      if (String(range).startsWith("workspace:"))
+        fail(`${field}.${name} is still ${range}`);
+    }
+  }
   return manifest;
 }
 
@@ -104,8 +120,8 @@ function orbit(scratch, args) {
 }
 
 function checkConsumer(sdkTgz, cliTgz, scratch) {
-  // pnpm rewrites the cli's workspace:* to 0.0.0; the override keeps npm from
-  // reaching a registry for it.
+  // pnpm rewrites the cli's workspace:* to the sdk's own version; the override
+  // keeps npm from reaching a registry for it.
   writeFileSync(
     join(scratch, "package.json"),
     JSON.stringify({
@@ -143,6 +159,44 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
   } else {
     console.log("  orbit 100 c f -> 212");
   }
+  const json = orbit(scratch, ["100", "kmh", "mph", "--json"]);
+  let parsed;
+  try {
+    parsed = JSON.parse(json.stdout);
+  } catch {
+    parsed = undefined;
+  }
+  if (
+    json.status !== 0 ||
+    parsed?.value !== 100 ||
+    parsed?.from !== "kmh" ||
+    parsed?.to !== "mph" ||
+    parsed?.result !== 62.1371
+  ) {
+    fail(
+      `orbit 100 kmh mph --json: exit ${json.status}, stdout ${JSON.stringify(json.stdout)}`,
+    );
+  } else {
+    console.log("  orbit 100 kmh mph --json -> 62.1371");
+  }
+  const jsonBad = orbit(scratch, ["5", "km", "kg", "--json"]);
+  let jsonErr;
+  try {
+    jsonErr = JSON.parse(jsonBad.stderr);
+  } catch {
+    jsonErr = undefined;
+  }
+  if (
+    jsonBad.status !== 2 ||
+    jsonBad.stdout !== "" ||
+    typeof jsonErr?.error !== "string"
+  ) {
+    fail(
+      `orbit 5 km kg --json: exit ${jsonBad.status}, stderr ${JSON.stringify(jsonBad.stderr)}`,
+    );
+  } else {
+    console.log("  orbit 5 km kg --json -> exit 2, JSON error on stderr");
+  }
   const bad = orbit(scratch, ["5", "km", "kg"]);
   if (bad.status !== 2 || bad.stdout !== "" || bad.stderr === "") {
     fail(`orbit 5 km kg: expected exit 2 with stderr, got exit ${bad.status}`);
@@ -162,6 +216,23 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
     const manifest = checkTarball(cliTgz, work);
     if (manifest.bin?.orbit !== "dist/bin.js")
       fail("bin.orbit is not dist/bin.js");
+    const sdkWork = mkdtempSync(join(tmpdir(), "orbit-cli-sdk-manifest-"));
+    try {
+      run(
+        "tar",
+        ["-xzf", sdkTgz, "-C", sdkWork, "package/package.json"],
+        sdkWork,
+      );
+      const sdkManifest = JSON.parse(
+        readFileSync(join(sdkWork, "package", "package.json"), "utf8"),
+      );
+      if (manifest.dependencies?.["@orbit/sdk"] !== sdkManifest.version)
+        fail(
+          `cli depends on @orbit/sdk ${manifest.dependencies?.["@orbit/sdk"]}, sdk is ${sdkManifest.version}`,
+        );
+    } finally {
+      rmSync(sdkWork, { recursive: true, force: true });
+    }
     checkConsumer(sdkTgz, cliTgz, scratch);
     if (process.exitCode !== 1) console.log("pack:check passed");
   } catch (error) {
