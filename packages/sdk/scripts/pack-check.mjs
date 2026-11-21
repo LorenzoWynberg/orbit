@@ -119,22 +119,26 @@ function checkConsumer(tgz, scratch) {
   const body = `
 if (convert(1, "mi", "km") !== 1.609344) throw new Error("convert(1, mi, km) is wrong");
 if (convert(100, "c", "f") !== 212) throw new Error("convert(100, c, f) is wrong");
+if (convert(36, "km/h", "m/s") !== 10) throw new Error("convert(36, km/h, m/s) is wrong");
+if (convert(1, "kn", "km/h") !== 1.852) throw new Error("convert(1, kn, km/h) is wrong");
+const speedSymbols = listUnits("speed").map((u) => u.symbol).sort().join(",");
+if (speedSymbols !== ["km/h", "kn", "m/s", "mph"].join(",")) throw new Error("listUnits(speed) is wrong: " + speedSymbols);
 let caught;
 try { convert(1, "xyz", "m"); } catch (error) { caught = error; }
 if (!(caught instanceof UnknownUnitError)) throw new Error("UnknownUnitError was not thrown");
 `;
   writeFileSync(
     join(scratch, "check.mjs"),
-    `import { convert, UnknownUnitError } from "@orbit/sdk";${body}`,
+    `import { convert, listUnits, UnknownUnitError } from "@orbit/sdk";${body}`,
   );
   writeFileSync(
     join(scratch, "check.cjs"),
-    `const { convert, UnknownUnitError } = require("@orbit/sdk");${body}`,
+    `const { convert, listUnits, UnknownUnitError } = require("@orbit/sdk");${body}`,
   );
   for (const file of ["check.mjs", "check.cjs"]) {
     run(process.execPath, [file], scratch);
     console.log(
-      `  ${file}: convert(1, "mi", "km") === 1.609344, convert(100, "c", "f") === 212`,
+      `  ${file}: convert(1, "mi", "km") === 1.609344, convert(100, "c", "f") === 212, convert(36, "km/h", "m/s") === 10, convert(1, "kn", "km/h") === 1.852, listUnits("speed") has km/h, mph, m/s, kn`,
     );
   }
 }
