@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { listUnits } from "@orbit/sdk";
+import { convert, listUnits } from "@orbit/sdk";
 import { main, type Io } from "./main.js";
 import pkg from "../package.json" with { type: "json" };
 
@@ -83,8 +83,33 @@ describe("overflow", () => {
     expect(r.err).not.toBe("");
   });
 
-  it("exits 2 with --places when toFixed would use exponent notation", () => {
+  it("prints exponent form with --places for results >= 1e21", () => {
     const r = run(["1e22", "m", "m", "--places", "2"]);
+    expect(r.code).toBe(0);
+    expect(r.out).toBe("1e+22\n");
+    expect(r.err).toBe("");
+  });
+
+  it("keeps fixed decimals with --places below 1e21", () => {
+    const r = run(["1e19", "m", "mm", "--places", "6"]);
+    expect(r.code).toBe(0);
+    expect(r.out).toBe(
+      `${convert(1e19, "m", "mm", { precision: 6 }).toFixed(6)}\n`,
+    );
+    expect(r.err).toBe("");
+  });
+
+  it("emits exponent form in --json with --places", () => {
+    const r = run(["1e22", "m", "m", "--places", "2", "--json"]);
+    expect(r.code).toBe(0);
+    expect(r.out.trim().split("\n")).toHaveLength(1);
+    const j = JSON.parse(r.out) as { result: number; formatted: string };
+    expect(j.result).toBe(1e22);
+    expect(j.formatted).toBe("1e+22");
+  });
+
+  it("still exits 2 with --places when the result is Infinity", () => {
+    const r = run(["1e308", "km", "mm", "--places", "2"]);
     expect(r.code).toBe(2);
     expect(r.out).toBe("");
     expect(r.err).not.toBe("");
