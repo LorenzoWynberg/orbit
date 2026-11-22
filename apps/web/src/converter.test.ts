@@ -358,7 +358,8 @@ describe("decimal places", () => {
   it("restores precision from the link", () => {
     load("?value=100&from=mi&to=km&precision=3");
     expect(field<HTMLSelectElement>("precision").value).toBe("3");
-    expect(result()).toBe("160.934");
+    load("?value=1.5&from=km&to=km&precision=3");
+    expect(result()).toBe("1.500");
   });
 
   it.each(["7", "-1", "2.5", "abc"])(
@@ -366,6 +367,7 @@ describe("decimal places", () => {
     (bad) => {
       load(`?value=100&from=mi&to=km&precision=${bad}`);
       expect(field<HTMLSelectElement>("precision").value).toBe("");
+      expect(result()).toBe("160.934");
       expect(message().hidden).toBe(true);
       expect(message().textContent).toBe("");
       expect(field("precision").hasAttribute("aria-invalid")).toBe(false);
