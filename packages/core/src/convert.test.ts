@@ -311,3 +311,64 @@ describe("case-insensitive alias resolution", () => {
     close(convert(1, "Mg", "mg"), 1e9);
   });
 });
+
+describe("precision", () => {
+  it("is unchanged without a precision", () => {
+    expect(convert(1, "mph", "km/h")).toBe(1.609344);
+    expect(convert(1, "mph", "km/h", {})).toBe(1.609344);
+    expect(Object.is(convert(-0, "m", "m"), -0)).toBe(true);
+  });
+
+  it("rounds half away from zero on decimal digits", () => {
+    expect(convert(1.005, "m", "m", { precision: 2 })).toBe(1.01);
+    expect(convert(-1.005, "m", "m", { precision: 2 })).toBe(-1.01);
+    expect(convert(2.5, "m", "m", { precision: 0 })).toBe(3);
+    expect(convert(-2.5, "m", "m", { precision: 0 })).toBe(-3);
+    expect(Object.is(convert(-0.001, "m", "m", { precision: 2 }), 0)).toBe(
+      true,
+    );
+  });
+
+  it("rounds on every conversion path", () => {
+    expect(convert(1.23456, "m", "m", { precision: 2 })).toBe(1.23);
+    expect(convert(1, "in", "cm", { precision: 1 })).toBe(2.5);
+    expect(convert(1, "°C", "°F", { precision: 1 })).toBe(33.8);
+    expect(convert(1.234, "°C", "°C", { precision: 1 })).toBe(1.2);
+    expect(convert(100, "km/h", "mph", { precision: 4 })).toBe(62.1371);
+    expect(convert(1.234, "km/h", "km/h", { precision: 1 })).toBe(1.2);
+  });
+
+  it("passes through huge and non-finite values", () => {
+    expect(convert(2 ** 53, "m", "m", { precision: 2 })).toBe(2 ** 53);
+    expect(convert(1e21, "m", "m", { precision: 2 })).toBe(1e21);
+    expect(convert(Infinity, "m", "m", { precision: 2 })).toBe(Infinity);
+  });
+
+  it("handles exponent-form values", () => {
+    expect(convert(1e-7, "m", "m", { precision: 2 })).toBe(0);
+    expect(convert(1.5e-7, "m", "m", { precision: 7 })).toBe(2e-7);
+    expect(convert(123.456, "m", "m", { precision: 100 })).toBe(123.456);
+  });
+
+  it("rejects invalid precision", () => {
+    for (const precision of [-1, 1.5, 101, NaN]) {
+      expect(() => convert(1, "m", "m", { precision })).toThrow(RangeError);
+    }
+    expect(() => convert(1, "m", "m", { precision: 0 })).not.toThrow();
+    expect(() => convert(1, "m", "m", { precision: 100 })).not.toThrow();
+  });
+
+  it("reports conversion errors before precision errors", () => {
+    for (const precision of [2, -1]) {
+      expect(() => convert(1, "zzz", "m", { precision })).toThrow(
+        UnknownUnitError,
+      );
+      expect(() => convert(1, "m", "kg", { precision })).toThrow(
+        IncompatibleDimensionError,
+      );
+      expect(() => convert(-300, "°C", "°F", { precision })).toThrow(
+        BelowAbsoluteZeroError,
+      );
+    }
+  });
+});
