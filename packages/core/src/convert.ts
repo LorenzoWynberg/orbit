@@ -24,7 +24,41 @@ function resolve(name: string): UnitInfo {
   return unit;
 }
 
-export function convert(value: number, from: string, to: string): number {
+export interface ConvertOptions {
+  /** Decimal places to round the result to (integer 0-100), half away from zero. */
+  precision?: number;
+}
+
+/** Shift the decimal exponent of `n` by `k` without float multiplication. */
+function shift(n: number, k: number): number {
+  const [mantissa, exp = "0"] = String(n).split("e");
+  return Number(`${mantissa}e${Number(exp) + k}`);
+}
+
+function roundTo(x: number, p: number): number {
+  if (!Number.isFinite(x) || Math.abs(x) >= 2 ** 53) return x;
+  const r = shift(Math.round(shift(Math.abs(x), p)), -p);
+  return r === 0 ? 0 : x < 0 ? -r : r;
+}
+
+export function convert(
+  value: number,
+  from: string,
+  to: string,
+  options?: ConvertOptions,
+): number {
+  const result = convertRaw(value, from, to);
+  const p = options?.precision;
+  if (p === undefined) return result;
+  if (!Number.isInteger(p) || p < 0 || p > 100) {
+    throw new RangeError(
+      `precision must be an integer between 0 and 100, got ${p}`,
+    );
+  }
+  return roundTo(result, p);
+}
+
+function convertRaw(value: number, from: string, to: string): number {
   const a = resolve(from);
   const b = resolve(to);
   if (a.dimension !== b.dimension) {
