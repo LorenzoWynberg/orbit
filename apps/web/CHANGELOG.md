@@ -6,7 +6,7 @@
 
 #### Changelog link in the web footer
 
-The web converter's footer, on both the GitHub Pages site and the Chrome extension, now has a **Changelog** link. It opens the project's GitHub releases page (`github.com/LorenzoWynberg/orbit/releases`), so you can see each version's release history without leaving the footer. It is the last link in the footer, after the existing **CLI on npm**, **Source on GitHub** and **Report an issue** links.
+The web converter's footer on the GitHub Pages site now has a **Changelog** link. It opens the project's GitHub releases page (`github.com/LorenzoWynberg/orbit/releases`), so you can see each version's release history without leaving the footer. It is the last link in the footer, after the existing **CLI on npm**, **Source on GitHub** and **Report an issue** links.
 
 The npm packages (`@orbit/cli` and `@orbit/sdk`) have no changes in this release.
 
@@ -16,7 +16,7 @@ The npm packages (`@orbit/cli` and `@orbit/sdk`) have no changes in this release
 
 #### Report an issue from the footer
 
-The web converter and the Chrome extension both have a new **Report an issue** link in the footer. It opens the project's GitHub issue tracker at `github.com/LorenzoWynberg/orbit/issues`, so you can report a bug or request a feature without searching the repository. The link comes after the existing **Source on GitHub** and **CLI on npm** links, which work as before.
+The web converter's footer on the GitHub Pages site has a new **Report an issue** link. It opens the project's GitHub issue tracker at `github.com/LorenzoWynberg/orbit/issues`, so you can report a bug or request a feature without searching the repository. The link comes after the existing **Source on GitHub** and **CLI on npm** links, which work as before.
 
 The npm packages (`@orbit/cli` and `@orbit/sdk`) are unchanged in this release.
 
