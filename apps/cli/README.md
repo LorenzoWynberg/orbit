@@ -12,9 +12,10 @@ orbit --list mass
 
 ## Usage
 
-`orbit <value> <from> <to> [--precision <n>] [--json]`
+`orbit <value> <from> <to> [--precision <n> | --places <n>] [--json]`
 
 - `-p, --precision <n>`: significant digits, 1 to 21 (default 6).
+- `--places <n>`: decimal places, 0 to 6, zero-padded (`orbit 100 mi km --places 4` prints `160.9344`). Cannot be combined with `--precision`.
 - `-l, --list [length|mass|temperature|volume|speed]`: list units, optionally for one dimension.
 - `--json`: print the result as one JSON line (see below).
 - `-v, --version`: print the CLI version (`--version --json` prints `{"version":"..."}`).
@@ -32,7 +33,7 @@ With `--json`, a conversion prints one JSON object on stdout:
 orbit 5 km mi --json   # {"value":5,"from":"km","to":"mi","result":3.10686}
 ```
 
-`value` is the parsed number, `from` and `to` are as typed, and `result` is rounded to `--precision`. Errors print `{"error":"..."}` on stderr instead. Exit codes are unchanged, and no colour is used in JSON mode. `--help` and `--list` stay plain text.
+`value` is the parsed number, `from` and `to` are as typed, and `result` is rounded to `--precision`. Errors print `{"error":"..."}` on stderr instead. Exit codes are unchanged, and no colour is used in JSON mode. With `--places`, the object also has `formatted`, the zero-padded string (`"1000.00"`), and `result` is the number as converted. `--help` and `--list` stay plain text.
 
 ## Exit codes
 

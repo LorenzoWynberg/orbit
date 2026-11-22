@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 - 2026-11-22
+
+### CLI: fixed decimal places
+
+The `orbit` CLI has a new `--places <n>` option. It prints the result with exactly `n` decimal places, from 0 to 6, padded with zeros: `orbit 100 mi km --places 4` prints `160.9344`, and `orbit 1 km m --places 2` prints `1000.00`. It can't be combined with `--precision`. That combination, or an out-of-range or non-integer value, is a usage error and exits with code 1. The option appears in `orbit --help` with an example.
+
+With `--json`, `--places` adds a `formatted` string field holding the zero-padded text, and the numeric `result` stays as it is. JSON output without `--places` is unchanged.
+
+With `--places`, a result of magnitude 1e21 or more prints in exponent form (`orbit 1e22 m m --places 2` prints `1e+22`), the same as the web converter's Decimal places control. In JSON mode, `formatted` holds the same string. Results that can't be represented, such as Infinity, still exit with code 2.
+
+The web app and the Chrome extension have no user-facing changes in this release.
+
 ## 0.2.0 - 2026-11-21
 
 ### Highlights
