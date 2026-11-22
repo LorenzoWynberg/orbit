@@ -32,7 +32,7 @@ describe("index.html", () => {
 
   it("labels every input and select", () => {
     const controls = [...page.querySelectorAll("input, select")];
-    expect(controls.length).toBe(3);
+    expect(controls.length).toBe(4);
     for (const control of controls) {
       expect(page.querySelector(`label[for="${control.id}"]`)).not.toBeNull();
     }

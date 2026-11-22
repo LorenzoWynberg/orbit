@@ -29,6 +29,12 @@ function pick(id: "from" | "to", symbol: string): void {
   select.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
+function pickPrecision(value: string): void {
+  const select = field<HTMLSelectElement>("precision");
+  select.value = value;
+  select.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
 const result = (): string => field("result").textContent;
 const message = (): HTMLElement => field("converter-error");
 
@@ -320,4 +326,49 @@ describe("unit memory", () => {
     expect(message().hidden).toBe(true);
     expect(logged).not.toHaveBeenCalled();
   });
+});
+
+describe("decimal places", () => {
+  it("leaves the default output unchanged", () => {
+    load("?value=100&from=mi&to=km");
+    expect(field<HTMLSelectElement>("precision").value).toBe("");
+    expect(result()).toBe("160.934");
+    expect(location.search).not.toContain("precision");
+  });
+
+  it.each([
+    ["4", "160.9344"],
+    ["0", "161"],
+    ["6", "160.934400"],
+  ])("shows 100 mi in km at %s places as %s", (places, expected) => {
+    load("?value=100&from=mi&to=km");
+    pickPrecision(places);
+    expect(result()).toBe(expected);
+  });
+
+  it("writes precision to the URL and removes it on No rounding", () => {
+    load("?value=100&from=mi&to=km");
+    pickPrecision("4");
+    expect(new URLSearchParams(location.search).get("precision")).toBe("4");
+    pickPrecision("");
+    expect(new URLSearchParams(location.search).has("precision")).toBe(false);
+    expect(result()).toBe("160.934");
+  });
+
+  it("restores precision from the link", () => {
+    load("?value=100&from=mi&to=km&precision=3");
+    expect(field<HTMLSelectElement>("precision").value).toBe("3");
+    expect(result()).toBe("160.934");
+  });
+
+  it.each(["7", "-1", "2.5", "abc"])(
+    "falls back to No rounding for precision=%s without an error",
+    (bad) => {
+      load(`?value=100&from=mi&to=km&precision=${bad}`);
+      expect(field<HTMLSelectElement>("precision").value).toBe("");
+      expect(message().hidden).toBe(true);
+      expect(message().textContent).toBe("");
+      expect(field("precision").hasAttribute("aria-invalid")).toBe(false);
+    },
+  );
 });
