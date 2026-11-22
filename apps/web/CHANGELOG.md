@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 - 2026-11-22
+
+### Highlights
+
+#### A link to the CLI from the web converter
+
+The footer of the GitHub Pages converter now has a **CLI on npm** link that goes to the `@orbit/cli` package page on npm (https://www.npmjs.com/package/@orbit/cli). If you use orbit in the browser, you can now find the command-line version in one click.
+
+#### Unchanged elsewhere
+
+The Chrome extension looks the same as before. Its footer still shows only the extension line, because the link appears only on the website. The npm packages (`@orbit/cli` and `@orbit/sdk`) did not change in this release.
+
 ## 0.4.0 - 2026-11-22
 
 ### Highlights
