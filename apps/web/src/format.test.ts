@@ -25,6 +25,8 @@ describe("formatFactor", () => {
     [1.609344, "1.609344"],
     [1e-12, "1e-12"],
     [1000, "1000"],
+    [1, "1"],
+    [4e-7, "4e-7"],
     [0, "0"],
   ])("formats %s as %s", (n, expected) => {
     expect(formatFactor(n)).toBe(expected);

@@ -392,8 +392,11 @@ describe("formula", () => {
   it("ignores the value and the precision", () => {
     load("?value=1&from=mi&to=km");
     const text = formula().textContent;
+    const exact = result();
     pickPrecision("2");
+    expect(result()).not.toBe(exact);
     pickPrecision("0");
+    expect(result()).toBe("2");
     type("5");
     expect(formula().textContent).toBe(text);
   });
@@ -402,6 +405,23 @@ describe("formula", () => {
     load("?value=1&from=mi&to=km");
     field<HTMLButtonElement>("swap").click();
     expect(formula().textContent).toBe("1 km = 0.621371 mi");
+  });
+
+  it("hides a shown formula when the input turns invalid, and shows it again on recovery", () => {
+    load("?value=1&from=km&to=mi");
+    expect(formula().hidden).toBe(false);
+    type("");
+    expect(formula().hidden).toBe(true);
+    expect(formula().textContent).toBe("");
+    type("abc");
+    expect(formula().hidden).toBe(true);
+    pick("to", "kg");
+    expect(formula().hidden).toBe(true);
+    expect(formula().textContent).toBe("");
+    type("2");
+    pick("to", "m");
+    expect(formula().hidden).toBe(false);
+    expect(formula().textContent).toBe("1 km = 1000 m");
   });
 
   it.each([
