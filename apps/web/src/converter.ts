@@ -5,7 +5,7 @@ import {
   UnknownUnitError,
   type UnitInfo,
 } from "@orbit/core";
-import { formatResult } from "./format.js";
+import { formatFixed, formatResult } from "./format.js";
 import { readUnits, writeUnits } from "./unit-memory.js";
 
 const DEFAULTS = { value: "1", from: "km", to: "mi" } as const;
@@ -44,6 +44,7 @@ export function mountConverter(doc: Document): void {
   const valueInput = required<HTMLInputElement>(doc, "value");
   const fromSelect = required<HTMLSelectElement>(doc, "from");
   const toSelect = required<HTMLSelectElement>(doc, "to");
+  const precisionSelect = required<HTMLSelectElement>(doc, "precision");
   const swap = required<HTMLButtonElement>(doc, "swap");
   const message = required<HTMLElement>(doc, ERROR_ID);
   const output = required<HTMLOutputElement>(doc, "result");
@@ -51,6 +52,12 @@ export function mountConverter(doc: Document): void {
 
   populate(doc, fromSelect);
   populate(doc, toSelect);
+
+  function readPrecision(): number | undefined {
+    return precisionSelect.value === ""
+      ? undefined
+      : Number(precisionSelect.value);
+  }
 
   function clearErrors(): void {
     for (const field of fields) {
@@ -84,12 +91,21 @@ export function mountConverter(doc: Document): void {
       return;
     }
     try {
-      const converted = convert(n, fromSelect.value, toSelect.value);
+      const places = readPrecision();
+      const converted =
+        places === undefined
+          ? convert(n, fromSelect.value, toSelect.value)
+          : convert(n, fromSelect.value, toSelect.value, {
+              precision: places,
+            });
       if (!Number.isFinite(converted)) {
         fail("Result is too large to represent", [valueInput]);
         return;
       }
-      output.textContent = formatResult(converted);
+      output.textContent =
+        places === undefined
+          ? formatResult(converted)
+          : formatFixed(converted, places);
     } catch (error) {
       if (error instanceof IncompatibleDimensionError) {
         fail(error.message, [fromSelect, toSelect]);
@@ -107,11 +123,15 @@ export function mountConverter(doc: Document): void {
     const view = doc.defaultView;
     if (!view) return;
     const url = new URL(doc.location.href);
-    url.search = new URLSearchParams({
+    const query = new URLSearchParams({
       value: valueInput.value.trim(),
       from: fromSelect.value,
       to: toSelect.value,
-    }).toString();
+    });
+    if (precisionSelect.value !== "") {
+      query.set("precision", precisionSelect.value);
+    }
+    url.search = query.toString();
     view.history.replaceState(
       null,
       "",
@@ -140,6 +160,11 @@ export function mountConverter(doc: Document): void {
     select.value =
       requested !== null && symbols.has(requested) ? requested : DEFAULTS[name];
   };
+  const requestedPrecision = params.get("precision");
+  precisionSelect.value =
+    requestedPrecision !== null && /^[0-6]$/.test(requestedPrecision)
+      ? requestedPrecision
+      : "";
   valueInput.value = params.get("value") ?? DEFAULTS.value;
   if (params.has("from") || params.has("to")) {
     restoreUnit(fromSelect, "from");
