@@ -8,4 +8,4 @@ if (import.meta.env.MODE === "extension") {
 }
 
 mountConverter(document);
-mountFooter(document);
+mountFooter(document, { mode: import.meta.env.MODE });

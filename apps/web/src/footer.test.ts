@@ -22,6 +22,41 @@ describe("mountFooter", () => {
     expect(footer?.textContent).toBe(`Chrome extension: ${expectedName}`);
   });
 
+  it("adds the npm link in web mode", () => {
+    mountFooter(document, { mode: "production" });
+    const footer = document.querySelector("footer.site-footer");
+    const links = footer?.querySelectorAll("a");
+    expect(links).toHaveLength(1);
+    expect(links?.[0]?.textContent).toBe("CLI on npm");
+    expect(links?.[0]?.getAttribute("href")).toBe(
+      "https://www.npmjs.com/package/@orbit/cli",
+    );
+    expect(footer?.textContent).toBe(
+      `Chrome extension: ${expectedName}CLI on npm`,
+    );
+  });
+
+  it("has no link in extension mode", () => {
+    mountFooter(document, { mode: "extension" });
+    const footer = document.querySelector("footer.site-footer");
+    expect(footer?.querySelector("a")).toBeNull();
+    expect(footer?.textContent).toBe(`Chrome extension: ${expectedName}`);
+  });
+
+  it.each(["production", "extension"])(
+    "keeps structure and mounts once in %s mode",
+    (mode) => {
+      mountFooter(document, { mode });
+      mountFooter(document, { mode });
+      expect(document.querySelectorAll("footer.site-footer")).toHaveLength(1);
+      const footer = document.querySelector("footer.site-footer");
+      expect(footer?.previousElementSibling?.tagName).toBe("MAIN");
+      expect(document.getElementById("extension-name")?.textContent).toBe(
+        expectedName,
+      );
+    },
+  );
+
   it("mounts only once", () => {
     mountFooter(document);
     mountFooter(document);
