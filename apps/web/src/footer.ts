@@ -31,6 +31,12 @@ export function mountFooter(
     src.textContent = "Source on GitHub";
     srcP.append(src);
     footer.append(srcP);
+    const issuesP = doc.createElement("p");
+    const issues = doc.createElement("a");
+    issues.href = "https://github.com/LorenzoWynberg/orbit/issues";
+    issues.textContent = "Report an issue";
+    issuesP.append(issues);
+    footer.append(issuesP);
   }
   doc.body.append(footer);
 }
