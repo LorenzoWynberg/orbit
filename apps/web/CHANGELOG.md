@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.2 - 2026-11-22
+
+### Highlights
+
+#### Report an issue from the footer
+
+The web converter and the Chrome extension both have a new **Report an issue** link in the footer. It opens the project's GitHub issue tracker at `github.com/LorenzoWynberg/orbit/issues`, so you can report a bug or request a feature without searching the repository. The link comes after the existing **Source on GitHub** and **CLI on npm** links, which work as before.
+
+The npm packages (`@orbit/cli` and `@orbit/sdk`) are unchanged in this release.
+
 ## 0.5.1 - 2026-11-22
 
 ### Highlights
