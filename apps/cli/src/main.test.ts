@@ -343,3 +343,58 @@ describe("--version", () => {
     expect(out).toContain("orbit --version");
   });
 });
+
+describe("--places", () => {
+  it("prints zero-padded fixed decimals", () => {
+    for (const [argv, out] of [
+      [["100", "mi", "km", "--places", "4"], "160.9344\n"],
+      [["1", "km", "m", "--places", "2"], "1000.00\n"],
+      [["100", "mi", "km", "--places", "0"], "161\n"],
+      [["2.5", "m", "m", "--places", "0"], "3\n"],
+      [["-2.5", "m", "m", "--places", "0"], "-3\n"],
+      [["-40", "c", "f", "--places", "2"], "-40.00\n"],
+      [["100", "c", "f", "--places", "1"], "212.0\n"],
+    ] as [string[], string][]) {
+      expect(run(argv)).toEqual({ code: 0, out, err: "" });
+    }
+    for (let n = 0; n <= 6; n++) {
+      const out = run(["1", "km", "m", "--places", String(n)]).out;
+      expect(out).toBe(`${n === 0 ? "1000" : `1000.${"0".repeat(n)}`}\n`);
+    }
+  });
+  it("rejects bad places and conflicts with exit 1", () => {
+    for (const bad of ["7", "-1", "1.5", "abc"]) {
+      const r = run(["1", "km", "m", "--places", bad]);
+      expect(r.code).toBe(1);
+      expect(r.err).toContain("0 to 6");
+    }
+    expect(run(["1", "km", "m", "--places"]).code).toBe(1);
+    for (const p of [
+      ["--precision", "3"],
+      ["-p", "3"],
+    ]) {
+      const r = run(["1", "km", "m", "--places", "2", ...p]);
+      expect(r.code).toBe(1);
+      expect(r.err).toContain("cannot be combined");
+    }
+    expect(run(["1", "km", "m", "-p", "3"]).out).toBe("1000\n");
+  });
+  it("adds formatted to --json only with places", () => {
+    expect(run(["100", "mi", "km", "--places", "4", "--json"]).out).toBe(
+      '{"value":100,"from":"mi","to":"km","result":160.9344,"formatted":"160.9344"}\n',
+    );
+    expect(run(["1", "km", "m", "--places", "2", "--json"]).out).toBe(
+      '{"value":1,"from":"km","to":"m","result":1000,"formatted":"1000.00"}\n',
+    );
+    expect(run(["1", "km", "m", "--json"]).out).not.toContain("formatted");
+    const e = run(["1", "km", "m", "--places", "7", "--json"]);
+    expect(e.code).toBe(1);
+    expect((JSON.parse(e.err) as { error: string }).error).toContain("0 to 6");
+  });
+  it("is documented in --help", () => {
+    const out = run(["--help"]).out;
+    expect(out).toContain("[--places <n>]");
+    expect(out).toContain("--places <n>  ");
+    expect(out).toContain("orbit 100 mi km --places 4");
+  });
+});
