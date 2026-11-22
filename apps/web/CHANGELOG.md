@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.6.0 - 2026-11-22
+
+### Highlights
+
+#### Docs link in the web footer
+
+The footer of the web converter on the GitHub Pages site has a new **Docs** link. It opens the project README on GitHub (`github.com/LorenzoWynberg/orbit#readme`) and comes last, after **CLI on npm**, **Source on GitHub**, **Report an issue** and **Changelog**.
+
+### Fixed
+
+#### Corrected changelog entries
+
+The changelog entries for 0.5.3 (the **Changelog** link) and 0.5.2 (the **Report an issue** link) said these links were also in the Chrome extension's footer. The extension's footer has never had links; it shows only the extension name. Both entries now say the links are in the footer of the GitHub Pages site only.
+
+### Unchanged
+
+The npm packages `@orbit/cli` and `@orbit/sdk` have no changes in this release.
+
 ## 0.5.3 - 2026-11-22
 
 ### Highlights
