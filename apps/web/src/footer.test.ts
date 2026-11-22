@@ -26,7 +26,11 @@ describe("mountFooter", () => {
     mountFooter(document, { mode: "production" });
     const footer = document.querySelector("footer.site-footer");
     const links = footer?.querySelectorAll("a");
-    expect(links).toHaveLength(2);
+    expect(links).toHaveLength(3);
+    expect(links?.[2]?.textContent).toBe("Report an issue");
+    expect(links?.[2]?.getAttribute("href")).toBe(
+      "https://github.com/LorenzoWynberg/orbit/issues",
+    );
     expect(links?.[1]?.textContent).toBe("Source on GitHub");
     expect(links?.[1]?.getAttribute("href")).toBe(
       "https://github.com/LorenzoWynberg/orbit",
@@ -36,7 +40,7 @@ describe("mountFooter", () => {
       "https://www.npmjs.com/package/@orbit/cli",
     );
     expect(footer?.textContent).toBe(
-      `Chrome extension: ${expectedName}CLI on npmSource on GitHub`,
+      `Chrome extension: ${expectedName}CLI on npmSource on GitHubReport an issue`,
     );
   });
 
