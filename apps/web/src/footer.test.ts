@@ -43,6 +43,20 @@ describe("mountFooter", () => {
     expect(footer?.textContent).toBe(`Chrome extension: ${expectedName}`);
   });
 
+  it.each(["production", "extension"])(
+    "keeps structure and mounts once in %s mode",
+    (mode) => {
+      mountFooter(document, { mode });
+      mountFooter(document, { mode });
+      expect(document.querySelectorAll("footer.site-footer")).toHaveLength(1);
+      const footer = document.querySelector("footer.site-footer");
+      expect(footer?.previousElementSibling?.tagName).toBe("MAIN");
+      expect(document.getElementById("extension-name")?.textContent).toBe(
+        expectedName,
+      );
+    },
+  );
+
   it("mounts only once", () => {
     mountFooter(document);
     mountFooter(document);
