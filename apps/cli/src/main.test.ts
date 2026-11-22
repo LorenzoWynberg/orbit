@@ -82,6 +82,13 @@ describe("overflow", () => {
     expect(r.out).toBe("");
     expect(r.err).not.toBe("");
   });
+
+  it("exits 2 with --places when toFixed would use exponent notation", () => {
+    const r = run(["1e22", "m", "m", "--places", "2"]);
+    expect(r.code).toBe(2);
+    expect(r.out).toBe("");
+    expect(r.err).not.toBe("");
+  });
 });
 
 describe("usage errors exit 1", () => {

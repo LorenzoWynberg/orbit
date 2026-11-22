@@ -261,7 +261,12 @@ function run(argv: string[], io: Io, json: boolean): number {
       places === undefined
         ? convert(value, from, to)
         : convert(value, from, to, { precision: places });
-    if (!Number.isFinite(result)) {
+    // toFixed switches to exponent notation at 1e21, so --places cannot
+    // present such a result as zero-padded fixed decimals.
+    if (
+      !Number.isFinite(result) ||
+      (places !== undefined && Math.abs(result) >= 1e21)
+    ) {
       writeError(
         io,
         json,
