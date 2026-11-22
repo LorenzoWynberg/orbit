@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.1 - 2026-11-22
+
+### Highlights
+
+#### Source on GitHub link in the web footer
+
+The web converter's footer now has a **Source on GitHub** link to the project repository at [github.com/LorenzoWynberg/orbit](https://github.com/LorenzoWynberg/orbit). It appears right after the existing **CLI on npm** link. The link shows on the GitHub Pages site only.
+
+#### Unchanged
+
+The npm packages (`@orbit/cli` and `@orbit/sdk`) and the Chrome extension's own footer have no user-facing changes in this release.
+
 ## 0.5.0 - 2026-11-22
 
 ### Highlights
