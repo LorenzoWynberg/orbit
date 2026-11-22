@@ -43,6 +43,12 @@ export function mountFooter(
     changelog.textContent = "Changelog";
     changelogP.append(changelog);
     footer.append(changelogP);
+    const docsP = doc.createElement("p");
+    const docs = doc.createElement("a");
+    docs.href = "https://github.com/LorenzoWynberg/orbit#readme";
+    docs.textContent = "Docs";
+    docsP.append(docs);
+    footer.append(docsP);
   }
   doc.body.append(footer);
 }
