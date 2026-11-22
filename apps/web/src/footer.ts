@@ -3,7 +3,11 @@ import manifestText from "../public/manifest.json?raw";
 const name = (JSON.parse(manifestText) as { name: string }).name;
 
 /** Appends the footer naming the Chrome extension, once, after `main`. */
-export function mountFooter(doc: Document): void {
+export function mountFooter(
+  doc: Document,
+  options: { mode?: string } = {},
+): void {
+  const { mode = "extension" } = options;
   if (doc.querySelector("footer.site-footer")) return;
   const footer = doc.createElement("footer");
   footer.className = "site-footer";
@@ -14,5 +18,13 @@ export function mountFooter(doc: Document): void {
   span.textContent = name;
   p.append(span);
   footer.append(p);
+  if (mode !== "extension") {
+    const cliP = doc.createElement("p");
+    const a = doc.createElement("a");
+    a.href = "https://www.npmjs.com/package/@orbit/cli";
+    a.textContent = "CLI on npm";
+    cliP.append(a);
+    footer.append(cliP);
+  }
   doc.body.append(footer);
 }
