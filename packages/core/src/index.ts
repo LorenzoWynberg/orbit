@@ -1,4 +1,5 @@
 export { convert, listUnits } from "./convert.js";
+export type { ConvertOptions } from "./convert.js";
 export {
   BelowAbsoluteZeroError,
   IncompatibleDimensionError,

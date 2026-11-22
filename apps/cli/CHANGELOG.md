@@ -1,6 +1,18 @@
 # Changelog
 
-## [Unreleased]
+## 0.2.0 - 2026-11-21
+
+### Highlights
+
+#### Optional precision rounding for `convert()`
+
+`convert()` takes an optional fourth argument, `options`, whose `precision` field rounds the result to that many decimal places. The new `ConvertOptions` type is exported alongside `convert`. Rounding goes half away from zero on the decimal digits: `1.005` rounds to `1.01`, `2.5` to `3` and `-2.5` to `-3`. A negative value that rounds to nothing returns `0`, not `-0`. Rounding covers every conversion path, including temperatures and same-unit conversions.
+
+`precision` must be an integer from 0 to 100, and any other value throws a `RangeError`. Unknown units, mismatched dimensions and temperatures below absolute zero still raise their usual errors first. Values of 2^53 or more, and non-finite values, pass through unchanged.
+
+### Unchanged
+
+Calls without `options`, or with `{}`, return exactly what they did before. The web app and the Chrome extension run on the same conversion engine. Their interfaces don't change in this release, and their results stay the same.
 
 ### 0.2.0-rc.5
 
