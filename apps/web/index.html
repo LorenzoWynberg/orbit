@@ -38,13 +38,26 @@
           <label for="to">To</label>
           <select id="to" name="to"></select>
         </div>
+        <div class="field field-precision">
+          <label for="precision">Decimal places</label>
+          <select id="precision" name="precision">
+            <option value="" selected>No rounding</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+          </select>
+        </div>
         <p id="converter-error" class="error" role="status" hidden></p>
         <div class="result">
           <label for="result">Result</label>
           <output
             id="result"
             name="result"
-            for="value from to"
+            for="value from to precision"
             aria-live="polite"
           ></output>
         </div>

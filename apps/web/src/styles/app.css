@@ -167,6 +167,7 @@ output {
   }
 
   .field-value,
+  .field-precision,
   .error,
   .result {
     grid-column: 1 / -1;
