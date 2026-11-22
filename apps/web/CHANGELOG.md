@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.0 - 2026-11-22
+
+### Highlights
+
+#### Decimal places control in the converter
+
+The converter has a new **Decimal places** control, on the GitHub Pages site and in the Chrome extension popup. Pick a value from 0 to 6 and the result is rounded to that many places and padded with zeros: 100 mi in km reads `161` at 0 places, `160.9344` at 4 and `160.934400` at 6. The default, **No rounding**, keeps the current formatting, so 100 mi still converts to `160.934` km.
+
+#### Decimal places carry over in shared links
+
+The chosen number of decimal places is saved in the page link as a `precision` parameter, so a shared link opens with the same rounding. Switching back to **No rounding** removes the parameter. A link with a value outside 0–6 opens with No rounding, and no error is shown.
+
+The npm packages have no user-facing changes in this release.
+
 ## 0.2.0 - 2026-11-21
 
 ### Highlights
