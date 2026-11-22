@@ -1,6 +1,23 @@
 # Changelog
 
-## [Unreleased]
+## 0.2.0 - 2026-11-21
+
+### Highlights
+
+**Packages are checked the way you'll use them.** A new `check:pack` script packs `@orbit/sdk` and `@orbit/cli`, installs both into a clean project outside the repository and runs them. If either tarball is wrong, the check fails.
+
+**Speed and JSON output are covered.** The check confirms that the installed SDK converts speed correctly from both ESM and CommonJS, for example `convert(36, "km/h", "m/s")` → `10` and `convert(1, "kn", "km/h")` → `1.852`. It also confirms that `listUnits("speed")` returns `km/h`, `kn`, `m/s` and `mph`. For the installed `orbit` command:
+
+- `orbit 100 kmh mph --json` returns `62.1371`.
+- A bad conversion exits with code 2 and writes the error to stderr: as a JSON `error` object with `--json`, or as a plain message without it.
+
+**Tighter packaging.** The CLI pack check now fails if the CLI tarball contains source, script or test files, if `workspace:` dependency references leak into the CLI manifest, or if the CLI's `@orbit/sdk` dependency doesn't match the SDK version being packed.
+
+### Changed
+
+The npm descriptions for both packages now list length, mass, temperature, volume and speed.
+
+This release has no changes for the web app (GitHub Pages and Chrome Web Store).
 
 ### 0.2.0-rc.1
 
