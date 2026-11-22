@@ -119,7 +119,7 @@ function orbit(scratch, args) {
   return r;
 }
 
-function checkConsumer(sdkTgz, cliTgz, scratch) {
+function checkConsumer(sdkTgz, cliTgz, scratch, manifest) {
   // pnpm rewrites the cli's workspace:* to the sdk's own version; the override
   // keeps npm from reaching a registry for it.
   writeFileSync(
@@ -158,6 +158,14 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
     );
   } else {
     console.log("  orbit 100 c f -> 212");
+  }
+  const ver = orbit(scratch, ["--version"]);
+  if (ver.status !== 0 || ver.stdout !== `${manifest.version}\n`) {
+    fail(
+      `orbit --version: exit ${ver.status}, stdout ${JSON.stringify(ver.stdout)}`,
+    );
+  } else {
+    console.log(`  orbit --version -> ${manifest.version}`);
   }
   const json = orbit(scratch, ["100", "kmh", "mph", "--json"]);
   let parsed;
@@ -233,7 +241,7 @@ function checkConsumer(sdkTgz, cliTgz, scratch) {
     } finally {
       rmSync(sdkWork, { recursive: true, force: true });
     }
-    checkConsumer(sdkTgz, cliTgz, scratch);
+    checkConsumer(sdkTgz, cliTgz, scratch, manifest);
     if (process.exitCode !== 1) console.log("pack:check passed");
   } catch (error) {
     fail(

@@ -1,4 +1,5 @@
 import { parseArgs, styleText } from "node:util";
+import pkg from "../package.json" with { type: "json" };
 import {
   BelowAbsoluteZeroError,
   convert,
@@ -34,6 +35,7 @@ const USAGE = `orbit - convert length, mass, temperature, volume and speed units
 Usage:
   orbit <value> <from> <to> [--precision <n>] [--json]
   orbit --list [length|mass|temperature|volume|speed]
+  orbit --version
   orbit --help
 
 Arguments:
@@ -45,6 +47,7 @@ Options:
   -p, --precision <n>  significant digits, 1 to 21 (default ${DEFAULT_PRECISION})
   -l, --list [dim]     list the units, optionally for one dimension
   --json               print the result as JSON (errors as {"error":...} on stderr)
+  -v, --version        print the CLI version
   -h, --help           show this help
 
 Examples:
@@ -181,6 +184,7 @@ function run(argv: string[], io: Io, json: boolean): number {
         list: { type: "boolean", short: "l" },
         help: { type: "boolean", short: "h" },
         json: { type: "boolean" },
+        version: { type: "boolean", short: "v" },
       },
     });
   } catch (error) {
@@ -191,6 +195,13 @@ function run(argv: string[], io: Io, json: boolean): number {
   const { values } = parsed;
   // Negative numbers were lifted out of position; they only ever lead the value.
   const positionals = [...numbers, ...parsed.positionals];
+
+  if (values.version) {
+    io.stdout.write(
+      `${json ? JSON.stringify({ version: pkg.version }) : pkg.version}\n`,
+    );
+    return 0;
+  }
 
   if (values.help) {
     io.stdout.write(USAGE);
