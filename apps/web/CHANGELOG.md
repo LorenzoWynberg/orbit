@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.3 - 2026-11-22
+
+### Highlights
+
+#### Changelog link in the web footer
+
+The web converter's footer, on both the GitHub Pages site and the Chrome extension, now has a **Changelog** link. It opens the project's GitHub releases page (`github.com/LorenzoWynberg/orbit/releases`), so you can see each version's release history without leaving the footer. It is the last link in the footer, after the existing **CLI on npm**, **Source on GitHub** and **Report an issue** links.
+
+The npm packages (`@orbit/cli` and `@orbit/sdk`) have no changes in this release.
+
 ## 0.5.2 - 2026-11-22
 
 ### Highlights
