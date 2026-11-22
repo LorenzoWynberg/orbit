@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 - 2026-11-22
+
+### Highlights
+
+#### Conversion formula on the web converter (GitHub Pages, Chrome Web Store)
+
+The converter now shows the unit factor behind each conversion in a muted line under the result, such as `1 mi = 1.609344 km`. You can check the result and reuse the factor elsewhere.
+
+The factor always describes one unit, whatever value you type. It shows up to six decimal places with trailing zeros dropped (`1 km = 0.621371 mi`, `1 km = 1000 m`). Very small factors keep six significant digits (`1 nm = 1e-12 km`).
+
+The formula follows unit changes and the swap button, and it ignores the **Decimal places** setting. It is hidden when the value is empty, isn't a number, or the units measure different things. It returns on the next successful conversion.
+
+#### npm packages
+
+No user-facing changes to the command-line tool or the SDK.
+
 ## 0.3.0 - 2026-11-22
 
 ### Highlights
