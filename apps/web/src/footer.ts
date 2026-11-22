@@ -25,6 +25,12 @@ export function mountFooter(
     a.textContent = "CLI on npm";
     cliP.append(a);
     footer.append(cliP);
+    const srcP = doc.createElement("p");
+    const src = doc.createElement("a");
+    src.href = "https://github.com/LorenzoWynberg/orbit";
+    src.textContent = "Source on GitHub";
+    srcP.append(src);
+    footer.append(srcP);
   }
   doc.body.append(footer);
 }
