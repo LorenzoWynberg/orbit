@@ -22,17 +22,21 @@ describe("mountFooter", () => {
     expect(footer?.textContent).toBe(`Chrome extension: ${expectedName}`);
   });
 
-  it("adds the npm link in web mode", () => {
+  it("adds the npm and GitHub links in web mode", () => {
     mountFooter(document, { mode: "production" });
     const footer = document.querySelector("footer.site-footer");
     const links = footer?.querySelectorAll("a");
-    expect(links).toHaveLength(1);
+    expect(links).toHaveLength(2);
+    expect(links?.[1]?.textContent).toBe("Source on GitHub");
+    expect(links?.[1]?.getAttribute("href")).toBe(
+      "https://github.com/LorenzoWynberg/orbit",
+    );
     expect(links?.[0]?.textContent).toBe("CLI on npm");
     expect(links?.[0]?.getAttribute("href")).toBe(
       "https://www.npmjs.com/package/@orbit/cli",
     );
     expect(footer?.textContent).toBe(
-      `Chrome extension: ${expectedName}CLI on npm`,
+      `Chrome extension: ${expectedName}CLI on npmSource on GitHub`,
     );
   });
 
