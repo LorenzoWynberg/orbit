@@ -47,6 +47,12 @@ describe("index.html", () => {
     expect(page.getElementById("converter")?.tagName).toBe("FORM");
   });
 
+  it("has a hidden formula line right after the result", () => {
+    const formula = page.getElementById("formula");
+    expect(formula?.hidden).toBe(true);
+    expect(page.getElementById("result")?.nextElementSibling).toBe(formula);
+  });
+
   it("announces the result politely and names the swap button", () => {
     expect(page.querySelector("output")?.getAttribute("aria-live")).toBe(
       "polite",
