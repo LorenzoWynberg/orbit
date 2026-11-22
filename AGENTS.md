@@ -6,9 +6,9 @@
 
 Each package in this repo carries its own `AGENTS.md`, and its documentation starts at:
 
-- `packages/sdk/` (npm): [`packages/sdk/.trinity/docs/index.md`](packages/sdk/.trinity/docs/index.md)
 - `apps/cli/` (npm): [`apps/cli/.trinity/docs/index.md`](apps/cli/.trinity/docs/index.md)
 - `apps/web/` (GitHub Pages, Chrome Web Store): [`apps/web/.trinity/docs/index.md`](apps/web/.trinity/docs/index.md)
+- `packages/sdk/` (npm): [`packages/sdk/.trinity/docs/index.md`](packages/sdk/.trinity/docs/index.md)
 
 <!-- TRINITY-MANAGED-END -->
 
