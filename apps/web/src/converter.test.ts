@@ -36,6 +36,7 @@ function pickPrecision(value: string): void {
 }
 
 const result = (): string => field("result").textContent;
+const formula = (): HTMLElement => field("formula");
 const message = (): HTMLElement => field("converter-error");
 
 beforeEach(() => {
@@ -373,4 +374,44 @@ describe("decimal places", () => {
       expect(field("precision").hasAttribute("aria-invalid")).toBe(false);
     },
   );
+});
+
+describe("formula", () => {
+  it.each([
+    ["mi", "km", "1 mi = 1.609344 km"],
+    ["km", "mi", "1 km = 0.621371 mi"],
+    ["nm", "km", "1 nm = 1e-12 km"],
+    ["km", "m", "1 km = 1000 m"],
+    ["km", "km", "1 km = 1 km"],
+  ])("shows %s to %s", (from, to, text) => {
+    load(`?value=7&from=${from}&to=${to}`);
+    expect(formula().textContent).toBe(text);
+    expect(formula().hidden).toBe(false);
+  });
+
+  it("ignores the value and the precision", () => {
+    load("?value=1&from=mi&to=km");
+    const text = formula().textContent;
+    pickPrecision("2");
+    pickPrecision("0");
+    type("5");
+    expect(formula().textContent).toBe(text);
+  });
+
+  it("follows a swap", () => {
+    load("?value=1&from=mi&to=km");
+    field<HTMLButtonElement>("swap").click();
+    expect(formula().textContent).toBe("1 km = 0.621371 mi");
+  });
+
+  it.each([
+    ["empty value", "?value=&from=km&to=mi"],
+    ["non-number", "?value=abc&from=km&to=mi"],
+    ["incompatible units", "?value=1&from=km&to=kg"],
+    ["unknown unit", "?value=1&from=zz&to=mi"],
+  ])("is hidden and empty for %s", (_name, search) => {
+    load(search);
+    expect(formula().hidden).toBe(true);
+    expect(formula().textContent).toBe("");
+  });
 });

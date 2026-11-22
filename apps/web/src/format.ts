@@ -7,3 +7,10 @@ export function formatResult(n: number): string {
 export function formatFixed(n: number, places: number): string {
   return n.toFixed(places);
 }
+
+/** The ratio shown in the formula line: six decimals, trailing zeros dropped; tiny factors keep six significant digits. */
+export function formatFactor(n: number): string {
+  const s = String(Number(n.toFixed(6)));
+  if (s === "0" && n !== 0) return String(Number(n.toPrecision(6)));
+  return s;
+}

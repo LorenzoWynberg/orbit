@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatFixed, formatResult } from "./format.js";
+import { formatFactor, formatFixed, formatResult } from "./format.js";
 
 describe("formatResult", () => {
   it("rounds to six significant digits and drops trailing zeros", () => {
@@ -16,5 +16,17 @@ describe("formatFixed", () => {
   });
   it("has no decimal point at 0 places", () => {
     expect(formatFixed(2.4, 0)).toBe("2");
+  });
+});
+
+describe("formatFactor", () => {
+  it.each([
+    [0.621371192, "0.621371"],
+    [1.609344, "1.609344"],
+    [1e-12, "1e-12"],
+    [1000, "1000"],
+    [0, "0"],
+  ])("formats %s as %s", (n, expected) => {
+    expect(formatFactor(n)).toBe(expected);
   });
 });

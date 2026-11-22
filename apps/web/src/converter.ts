@@ -5,7 +5,7 @@ import {
   UnknownUnitError,
   type UnitInfo,
 } from "@orbit/core";
-import { formatFixed, formatResult } from "./format.js";
+import { formatFactor, formatFixed, formatResult } from "./format.js";
 import { readUnits, writeUnits } from "./unit-memory.js";
 
 const DEFAULTS = { value: "1", from: "km", to: "mi" } as const;
@@ -48,6 +48,7 @@ export function mountConverter(doc: Document): void {
   const swap = required<HTMLButtonElement>(doc, "swap");
   const message = required<HTMLElement>(doc, ERROR_ID);
   const output = required<HTMLOutputElement>(doc, "result");
+  const formula = required<HTMLElement>(doc, "formula");
   const fields = [valueInput, fromSelect, toSelect];
 
   populate(doc, fromSelect);
@@ -68,8 +69,14 @@ export function mountConverter(doc: Document): void {
     message.hidden = true;
   }
 
+  function hideFormula(): void {
+    formula.textContent = "";
+    formula.hidden = true;
+  }
+
   function fail(text: string, culprits: HTMLElement[]): void {
     output.textContent = "";
+    hideFormula();
     for (const field of culprits) {
       field.setAttribute("aria-invalid", "true");
       field.setAttribute("aria-describedby", ERROR_ID);
@@ -83,6 +90,7 @@ export function mountConverter(doc: Document): void {
     const raw = valueInput.value.trim();
     if (raw === "") {
       output.textContent = "";
+      hideFormula();
       return;
     }
     const n = Number(raw);
@@ -106,6 +114,10 @@ export function mountConverter(doc: Document): void {
         places === undefined
           ? formatResult(converted)
           : formatFixed(converted, places);
+      const from = fromSelect.value;
+      const to = toSelect.value;
+      formula.textContent = `1 ${from} = ${formatFactor(convert(1, from, to))} ${to}`;
+      formula.hidden = false;
     } catch (error) {
       if (error instanceof IncompatibleDimensionError) {
         fail(error.message, [fromSelect, toSelect]);
