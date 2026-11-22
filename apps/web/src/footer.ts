@@ -37,6 +37,12 @@ export function mountFooter(
     issues.textContent = "Report an issue";
     issuesP.append(issues);
     footer.append(issuesP);
+    const changelogP = doc.createElement("p");
+    const changelog = doc.createElement("a");
+    changelog.href = "https://github.com/LorenzoWynberg/orbit/releases";
+    changelog.textContent = "Changelog";
+    changelogP.append(changelog);
+    footer.append(changelogP);
   }
   doc.body.append(footer);
 }
