@@ -33,7 +33,7 @@ const DEFAULT_PRECISION = 6;
 const USAGE = `orbit - convert length, mass, temperature, volume and speed units
 
 Usage:
-  orbit <value> <from> <to> [--precision <n>] [--json]
+  orbit <value> <from> <to> [--precision <n>] [--places <n>] [--json]
   orbit --list [length|mass|temperature|volume|speed]
   orbit --version
   orbit --help
@@ -45,6 +45,7 @@ Arguments:
 
 Options:
   -p, --precision <n>  significant digits, 1 to 21 (default ${DEFAULT_PRECISION})
+  --places <n>         decimal places, 0 to 6, zero-padded (cannot be used with --precision)
   -l, --list [dim]     list the units, optionally for one dimension
   --json               print the result as JSON (errors as {"error":...} on stderr)
   -v, --version        print the CLI version
@@ -53,6 +54,7 @@ Options:
 Examples:
   orbit 5 km mi
   orbit 12 in cm --precision 3
+  orbit 100 mi km --places 4
   orbit 100 c f
   orbit -40 c f
   orbit 1 gal l --precision 10
@@ -77,7 +79,14 @@ function splitArgs(argv: string[]): { rest: string[]; numbers: string[] } {
   let sawPositional = false;
   argv.forEach((token, i) => {
     const prev = argv[i - 1];
-    const isOptionValue = prev === "--precision" || prev === "-p";
+    const isOptionValue =
+      prev === "--precision" || prev === "-p" || prev === "--places";
+    // parseArgs rejects "--places -1" as ambiguous; join it so parsePlaces
+    // can report the range instead.
+    if (prev === "--places" && token.startsWith("-") && token !== "--") {
+      rest[rest.length - 1] = `--places=${token}`;
+      return;
+    }
     // Only a negative number in the leading value slot is lifted; anywhere
     // else it stays put and parseArgs rejects it as an unknown option.
     if (
@@ -104,6 +113,17 @@ function parsePrecision(raw: string | undefined): number {
   if (!(n >= 1 && n <= 21)) {
     throw new UsageError(
       `Invalid precision "${raw}": expected an integer from 1 to 21.`,
+    );
+  }
+  return n;
+}
+
+function parsePlaces(raw: string | undefined): number | undefined {
+  if (raw === undefined) return undefined;
+  const n = /^\d+$/.test(raw) ? Number(raw) : NaN;
+  if (!(n >= 0 && n <= 6)) {
+    throw new UsageError(
+      `Invalid places "${raw}": expected an integer from 0 to 6.`,
     );
   }
   return n;
@@ -181,6 +201,7 @@ function run(argv: string[], io: Io, json: boolean): number {
       allowPositionals: true,
       options: {
         precision: { type: "string", short: "p" },
+        places: { type: "string" },
         list: { type: "boolean", short: "l" },
         help: { type: "boolean", short: "h" },
         json: { type: "boolean" },
@@ -228,18 +249,39 @@ function run(argv: string[], io: Io, json: boolean): number {
     );
   }
   const [rawValue, from, to] = positionals as [string, string, string];
+  if (values.places !== undefined && values.precision !== undefined) {
+    throw new UsageError("--places cannot be combined with --precision.");
+  }
+  const places = parsePlaces(values.places);
   const precision = parsePrecision(values.precision);
   const value = parseValue(rawValue);
 
   try {
-    const result = convert(value, from, to);
-    if (!Number.isFinite(result)) {
+    const result =
+      places === undefined
+        ? convert(value, from, to)
+        : convert(value, from, to, { precision: places });
+    // toFixed switches to exponent notation at 1e21, so --places cannot
+    // present such a result as zero-padded fixed decimals.
+    if (
+      !Number.isFinite(result) ||
+      (places !== undefined && Math.abs(result) >= 1e21)
+    ) {
       writeError(
         io,
         json,
         `Result of converting ${rawValue} ${from} to ${to} is too large to represent.`,
       );
       return 2;
+    }
+    if (places !== undefined) {
+      const formatted = result.toFixed(places);
+      io.stdout.write(
+        json
+          ? `${JSON.stringify({ value, from, to, result, formatted })}\n`
+          : `${formatted}\n`,
+      );
+      return 0;
     }
     const rounded = Number(result.toPrecision(precision));
     io.stdout.write(
